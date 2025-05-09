@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Edit Student</title>
+	<!-- Bootstrap 5 CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<style>
+		body {
+			background-color: #f4f7fa;
+			/* Light gray background */
+		}
+
+		.container {
+			background-color: white;
+			border-radius: 10px;
+			padding: 30px;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+			max-width: 800px;
+			margin-top: 50px;
+		}
+
+		h2 {
+			color: #333;
+			font-weight: 600;
+		}
+
+		.btn-custom {
+			background-color: #28a745;
+			color: white;
+			border-radius: 5px;
+		}
+
+		.btn-custom:hover {
+			background-color: #218838;
+		}
+
+		.form-label {
+			font-weight: 500;
+			color: #333;
+		}
+
+		.form-check-label {
+			font-weight: 400;
+		}
+
+		.form-select {
+			height: 45px;
+		}
+
+		.form-control {
+			height: 45px;
+		}
+
+		.row {
+			margin-bottom: 1.5rem;
+		}
+
+		.bg-light {
+			background-color: #f8f9fa !important;
+		}
+
+		.mb-4 {
+			margin-bottom: 2rem !important;
+		}
+
+		.hobby-group {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 15px;
+		}
+
+		.hobby-group .form-check {
+			margin-right: 20px;
+			margin-bottom: 10px;
+		}
+
+		#thumbnail {
+			height: 150px;
+			width: 150px;
+			object-fit: cover;
+			border: 1px solid #ccc;
+			border-radius: 8px;
+			margin-top: 10px;
+		}
+
+		.alert-msg {
+			color: red;
+		}
+	</style>
+</head>
+
+<body class="bg-light py-5">
+	<div class="container">
+		<h2 class="text-center mb-4">Edit Student</h2>
+
+		<form th:action="@{'/students/' + ${student.id}}" enctype="multipart/form-data" th:object="${student}"
+			method="post" class="bg-white p-4 rounded shadow-sm">
+
+			<!-- First Name and Last Name -->
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<label class="form-label">First Name:</label>
+					<input type="text" th:field="*{firstName}" class="form-control" />
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Last Name:</label>
+					<input type="text" th:field="*{lastName}" class="form-control" />
+				</div>
+			</div>
+
+			<!-- Father's Name and Mobile Number -->
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<label class="form-label">Father's Name:</label>
+					<input type="text" th:field="*{fatherName}" class="form-control" />
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Mobile Number:</label>
+					<input type="text" th:field="*{mobileNumber}" class="form-control" />
+				</div>
+			</div>
+
+			<!-- Email and Gender -->
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<label class="form-label">Email:</label>
+					<input type="email" th:field="*{email}" class="form-control" />
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Gender:</label>
+					<div>
+						<div class="form-check form-check-inline" th:each="gender : ${genders}">
+							<input class="form-check-input" type="radio" th:id="'gender_' + ${gender}"
+								th:field="*{gender}" th:value="${gender}" />
+							<label class="form-check-label" th:for="'gender_' + ${gender}" th:text="${gender}"></label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Hobbies -->
+			<div class="mb-3">
+				<label class="form-label">Hobbies:</label>
+				<div class="hobby-group">
+					<div class="form-check" th:each="hobby : ${hobbiesList}">
+						<input class="form-check-input" type="checkbox" name="hobbies" th:value="${hobby}"
+							th:checked="${#lists.contains(#strings.arraySplit(student.hobbies, ','), hobby)}"
+							id="hobby__${hobby}">
+						<label class="form-check-label" th:for="|hobby__${hobby}|" th:text="${hobby}"></label>
+					</div>
+				</div>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Description:</label>
+				<textarea th:field="*{description}" class="form-control" rows="4"
+					placeholder="Tell us a little bit about yourself...">${student.description}</textarea>
+			</div>
+
+			<!-- State and City Dropdown -->
+			<div class="row mb-4">
+				<div class="col-md-6">
+					<label class="form-label">State:</label>
+					<select id="state" name="stateId" class="form-select">
+						<option value="" disabled>Select State</option>
+						<option th:each="state : ${states}" th:value="${state.id}" th:text="${state.name}"
+							th:selected="${student.city != null and student.city.state != null and state.id == student.city.state.id}">
+						</option>
+					</select>
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">City:</label>
+					<select id="city" th:field="*{city.id}" class="form-select">
+						<option value="" disabled>Select City</option>
+						<option th:each="city : ${cities}" th:value="${city.id}" th:text="${city.name}"
+							th:selected="${student.city != null and city.id == student.city.id}"></option>
+					</select>
+				</div>
+			</div>
+
+
+			<div class="row align-items-center text-center">
+
+			    <!-- File Input -->
+			    <div class="col-md-6">
+			        <div>
+			            <label for="fileImage" class="form-label">Choose Image</label>
+			            <input type="file" id="fileImage" name="image" class="form-control mx-auto"
+			                style="max-width: 300px;">
+
+			            <p id="imageError" style="display:none;" class="alert-msg text-danger text-sm mt-1">
+			                File size exceeds 1MB. Please upload a smaller file.
+			            </p>
+			            <p id="imageFormatError" style="display:none;" class="alert-msg text-danger text-sm mt-1">
+			                Please upload a JPG or PNG image.
+			            </p>
+			        </div>
+			    </div>
+
+			    <!-- Image Preview -->
+			    <div class="col-md-6">
+			        <img th:src="@{/{image} (image=${student.photosPath})}" id="thumbnail" class="img-thumbnail"
+			            style="height: 150px; width: 150px; object-fit: cover;" alt="Photo preview">
+			    </div>
+			</div>
+
+			<!-- Aadhaar Upload -->
+			<div class="row align-items-center text-center mt-4">
+			    <div class="col-md-6">
+			        <label class="form-label">Upload Aadhaar (JPG, PNG, PDF):</label>
+			        <input type="file" id="aadhaarFile" name="aadhaar" accept=".jpg,.jpeg,.png,.pdf"
+			            class="form-control mx-auto" style="max-width: 300px;">
+			        <p id="aadhaarError" class="text-danger text-sm mt-1" style="display:none;"></p>
+			    </div>
+			    <div class="col-md-6">
+			        <!-- Show previous Aadhaar -->
+			        <div th:if="${student.aadhaarFileName != null}">
+			            <!-- If image -->
+			            <img th:if="${#strings.endsWith(student.aadhaarFileName.toLowerCase(), '.jpg') 
+			                        || #strings.endsWith(student.aadhaarFileName.toLowerCase(), '.jpeg') 
+			                        || #strings.endsWith(student.aadhaarFileName.toLowerCase(), '.png')}"
+			                th:src="@{'/student-documents/' + ${student.id} + '/aadhaar/' + ${student.aadhaarFileName}}"
+			                id="aadhaarPreview" style="height: 100px;" class="border p-1 rounded">
+			            
+			            <!-- If PDF -->
+			            <div th:if="${#strings.endsWith(student.aadhaarFileName.toLowerCase(), '.pdf')}">
+			                <img src="/image/pdf-icon.png" style="height: 100px;" class="border p-1 rounded" />
+			                <p class="mt-2 text-muted" th:text="${student.aadhaarFileName}"></p>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+
+			<!-- PAN Upload -->
+			<div class="row align-items-center text-center mt-4">
+			    <div class="col-md-6">
+			        <label class="form-label">Upload PAN (JPG, PNG, PDF):</label>
+			        <input type="file" id="panFile" name="pan" accept=".jpg,.jpeg,.png,.pdf"
+			            class="form-control mx-auto" style="max-width: 300px;">
+			        <p id="panError" class="text-danger text-sm mt-1" style="display:none;"></p>
+			    </div>
+			    <div class="col-md-6">
+			        <!-- Show previous PAN -->
+			        <div th:if="${student.panFileName != null}">
+			            <!-- If image -->
+			            <img th:if="${#strings.endsWith(student.panFileName.toLowerCase(), '.jpg') 
+			                        || #strings.endsWith(student.panFileName.toLowerCase(), '.jpeg') 
+			                        || #strings.endsWith(student.panFileName.toLowerCase(), '.png')}"
+			                th:src="@{'/student-documents/' + ${student.id} + '/pan/' + ${student.panFileName}}"
+			                id="panPreview" style="height: 100px;" class="border p-1 rounded">
+			            
+			            <!-- If PDF -->
+			            <div th:if="${#strings.endsWith(student.panFileName.toLowerCase(), '.pdf')}">
+			                <img src="/image/pdf-icon.png" style="height: 100px;" class="border p-1 rounded" />
+			                <p class="mt-2 text-muted" th:text="${student.panFileName}"></p>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+
+
+			<!-- Submit Button -->
+			<button type="submit" class="btn btn-custom w-100">Update</button>
+		</form>
+	</div>
+
+	<script>
+		// Dynamic City Dropdown based on selected State
+		$('#fileImage').change(function () {
+					const file = this.files[0];
+					if (!file) return;
+
+					const fileSize = file.size;
+					const fileType = file.type;
+					const fileName = file.name.toLowerCase();
+
+					// Reset error messages and thumbnail
+					$('#imageError').hide();
+					$('#imageFormatError').hide();
+					$('#thumbnail').attr("src", "/image/user.png");
+
+					const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+					const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+					if (fileSize > 1024 * 1024) { // 1MB
+						$('#imageError').show();
+						$('#thumbnail').attr("src", "/image/user.png");
+						this.value = ''; // clear file input
+					} else if (!['image/jpeg', 'image/png'].includes(fileType)) {
+						$('#imageFormatError').show();
+						$('#thumbnail').attr("src", "/image/user.png");
+						this.value = ''; // clear file input
+					} else {
+						// Show image preview
+						const reader = new FileReader();
+						reader.onload = function (e) {
+							$('#thumbnail').attr('src', e.target.result);
+						};
+						reader.readAsDataURL(file);
+					}
+
+				});
+
+
+				// Aadhaar file validation and preview
+				$('#aadhaarFile').change(function () {
+					const file = this.files[0];
+					if (!file) return;
+
+					const fileSize = file.size;
+					const fileType = file.type;
+					const fileName = file.name;
+
+					// Hide previous error messages
+					$('#aadhaarError').hide();
+					$('#aadhaarPreview').hide();
+					$('#aadhaarFilename').hide();
+
+					if (fileSize > 1024 * 1024) { // 1MB
+						$('#aadhaarError').text('File size exceeds 1MB. Please upload a smaller file.').show();
+					} else if (!['.jpg', '.jpeg', '.png', '.pdf'].some(ext => fileName.toLowerCase().endsWith(ext))) {
+						$('#aadhaarError').text('Please upload a valid Aadhaar file (JPG, PNG, PDF).').show();
+					} else {
+						// Show preview or filename for PDF
+						if (fileType === 'application/pdf') {
+							$('#aadhaarPreview').hide();
+							$('#aadhaarFilename').text(fileName).show();
+						} else {
+							const reader = new FileReader();
+							reader.onload = function (e) {
+								$('#aadhaarPreview').attr('src', e.target.result).show();
+								$('#aadhaarFilename').hide();
+							};
+							reader.readAsDataURL(file);
+						}
+					}
+				});
+
+				// PAN file validation and preview
+				$('#panFile').change(function () {
+					const file = this.files[0];
+					if (!file) return;
+
+					const fileSize = file.size;
+					const fileType = file.type;
+					const fileName = file.name;
+
+					// Hide previous error messages
+					$('#panError').hide();
+					$('#panPreview').hide();
+					$('#panFilename').hide();
+
+					if (fileSize > 1024 * 1024) { // 1MB
+						$('#panError').text('File size exceeds 1MB. Please upload a smaller file.').show();
+					} else if (!['.jpg', '.jpeg', '.png', '.pdf'].some(ext => fileName.toLowerCase().endsWith(ext))) {
+						$('#panError').text('Please upload a valid PAN file (JPG, PNG, PDF).').show();
+					} else {
+						// Show preview or filename for PDF
+						if (fileType === 'application/pdf') {
+							$('#panPreview').hide();
+							$('#panFilename').text(fileName).show();
+						} else {
+							const reader = new FileReader();
+							reader.onload = function (e) {
+								$('#panPreview').attr('src', e.target.result).show();
+								$('#panFilename').hide();
+							};
+							reader.readAsDataURL(file);
+						}
+					}
+				});
+			
+
+				$('#state').change(function () {
+					const stateId = $(this).val();
+					if (stateId) {
+						$.get("/cities", {stateId: stateId}, function (cities) {
+							const cityDropdown = $('#city');
+							cityDropdown.empty().append('<option value="" disabled selected>Select City</option>');
+							$.each(cities, function (i, city) {
+								cityDropdown.append('<option value="' + city.id + '">' + city.name + '</option>');
+							});
+						});
+					}
+				});
+	</script>
+
+	<!-- Bootstrap 5 JS and dependencies -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

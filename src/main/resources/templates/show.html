@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Student Details</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f7f9fc;
+			margin: 0;
+			padding: 20px;
+		}
+
+		.container {
+			max-width: 600px;
+			margin: auto;
+			background-color: #ffffff;
+			padding: 30px;
+			border-radius: 10px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			text-align: center;
+			color: #333;
+			margin-bottom: 30px;
+		}
+
+		.profile-image {
+			width: 120px;
+			height: 120px;
+			border-radius: 50%;
+			object-fit: cover;
+			margin: 20px auto;
+			display: block;
+			border: 3px solid #007bff;
+		}
+
+		.detail {
+			margin-bottom: 15px;
+		}
+
+		.detail strong {
+			display: inline-block;
+			width: 150px;
+			color: #555;
+		}
+
+		.detail span {
+			color: #222;
+		}
+
+		a {
+			display: inline-block;
+			margin-top: 20px;
+			text-decoration: none;
+			color: white;
+			background-color: #007bff;
+			padding: 10px 20px;
+			border-radius: 5px;
+			transition: background-color 0.3s ease;
+		}
+
+		a:hover {
+			background-color: #0056b3;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>Student Details</h1>
+
+		<!-- Profile Image -->
+		<img th:src="@{/{image} (image=${student.photosPath})}" class="profile-image" alt="Profile Image">
+
+		<div class="detail"><strong>First Name:</strong> <span th:text="${student.firstName}"></span></div>
+		<div class="detail"><strong>Last Name:</strong> <span th:text="${student.lastName}"></span></div>
+		<div class="detail"><strong>Father's Name:</strong> <span th:text="${student.fatherName}"></span></div>
+		<div class="detail"><strong>Email:</strong> <span th:text="${student.email}"></span></div>
+		<div class="detail"><strong>Mobile Number:</strong> <span th:text="${student.mobileNumber}"></span></div>
+		<div class="detail"><strong>Gender:</strong> <span th:text="${student.gender}"></span></div>
+		<div class="detail"><strong>Hobbies:</strong> <span th:text="${student.hobbies}"></span></div>
+		<div class="detail"><strong>Description:</strong> <span th:text="${student.description}"></span></div>
+		<div class="detail"><strong>City:</strong> <span th:text="${student.city.name}"></span></div>
+		<div class="detail"><strong>State:</strong> <span th:text="${student.city.state.name}"></span></div>
+
+		<div class="detail"><strong>Aadhaar:</strong>
+		    <span th:if="${student.aadhaarFileName != null}">
+		        <span th:if="${#strings.endsWith(student.aadhaarFileName, '.pdf')}">
+		            <a th:href="@{'/' + ${student.getAadhaarPath()}}" target="_blank">View Aadhaar (PDF)</a>
+		        </span>
+		        <span th:unless="${#strings.endsWith(student.aadhaarFileName, '.pdf')}">
+		            <img th:src="@{'/' + ${student.getAadhaarPath()}}" style="max-width: 100px; max-height: 100px;" alt="Aadhaar">
+		        </span>
+		    </span>
+		</div>
+
+		<div class="detail"><strong>PAN:</strong>
+		    <span th:if="${student.panFileName != null}">
+		        <span th:if="${#strings.endsWith(student.panFileName, '.pdf')}">
+		            <a th:href="@{'/' + ${student.getPanPath()}}" target="_blank">View PAN (PDF)</a>
+		        </span>
+		        <span th:unless="${#strings.endsWith(student.panFileName, '.pdf')}">
+		            <img th:src="@{'/' + ${student.getPanPath()}}" style="max-width: 100px; max-height: 100px;" alt="PAN">
+		        </span>
+		    </span>
+		</div>
+
+		<a href="/students">← Back to Student List</a>
+	</div>
+</body>
+
+</html>

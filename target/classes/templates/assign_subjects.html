@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Assign Subjects to Student</title>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet" />
+	<style>
+		.text-danger {
+			color: red;
+			font-size: 0.9rem;
+			margin-top: 5px;
+		}
+	</style>
+</head>
+
+<body style="background-color: #f5f5f5;">
+
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-md-8">
+
+				<div class="card shadow-3">
+					<div class="card-header bg-primary text-white">
+						<h4 class="mb-0">Assign Subjects to Student</h4>
+					</div>
+					<div class="card-body">
+
+						<form th:action="@{/assign-subjects}" method="post" id="assignForm">
+
+							<!-- Student Dropdown -->
+							<div class="form-outline mb-4">
+								<label class="form-label">Select Student</label>
+								<select class="form-select" name="studentId" required>
+									<option value="">-- Choose Student --</option>
+									<option th:each="student : ${students}" th:value="${student.id}"
+										th:text="${student.firstName + ' ' + student.lastName}"></option>
+								</select>
+							</div>
+
+							<!-- Subject Checkboxes -->
+							<div class="mb-4">
+								<label class="form-label d-block mb-2">Select Subjects</label>
+								<div class="form-check" th:each="subject : ${subjects}">
+									<input class="form-check-input subject-checkbox" type="checkbox" name="subjectIds"
+										th:id="'subject_' + ${subject.id}" th:value="${subject.id}">
+									<label class="form-check-label" th:for="'subject_' + ${subject.id}"
+										th:text="${subject.name}"></label>
+								</div>
+								<div id="subjectError" class="text-danger d-none">
+									<!-- Error will be updated dynamically -->
+								</div>
+							</div>
+
+							<!-- Submit Button -->
+							<div class="d-grid">
+								<button type="submit" class="btn btn-success btn-lg">
+									Assign Selected Subjects
+								</button>
+							</div>
+
+						</form>
+
+						<button class="btn btn-warning btn-lg mt-5">
+							<a class="text-black" href="/students">← Back to Student List</a> </button>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
+
+	<script>
+		const checkboxes = document.querySelectorAll('.subject-checkbox');
+		const form = document.getElementById("assignForm");
+		const errorDiv = document.getElementById("subjectError");
+
+		function updateCheckboxState() {
+			const selected = document.querySelectorAll('.subject-checkbox:checked');
+
+			// Disable unchecked boxes if 5 are selected
+			if (selected.length >= 5) {
+				checkboxes.forEach(box => {
+					if (!box.checked) box.disabled = true;
+				});
+			} else {
+				checkboxes.forEach(box => box.disabled = false);
+			}
+
+			// Hide error when between 3 and 5 are selected
+			if (selected.length >= 3 && selected.length <= 5) {
+				errorDiv.classList.add("d-none");
+			}
+		}
+
+		checkboxes.forEach(cb => {
+			cb.addEventListener('change', updateCheckboxState);
+		});
+
+		form.addEventListener("submit", function (event) {
+			const selected = document.querySelectorAll('.subject-checkbox:checked');
+			errorDiv.classList.remove("d-none");
+
+			if (selected.length < 3) {
+				errorDiv.textContent = "Please select at least 3 subjects.";
+				event.preventDefault();
+			} else if (selected.length > 5) {
+				errorDiv.textContent = "Please select up to 5 subjects only.";
+				event.preventDefault();
+			} else {
+				errorDiv.classList.add("d-none");
+			}
+		});
+	</script>
+
+</body>
+
+</html>
