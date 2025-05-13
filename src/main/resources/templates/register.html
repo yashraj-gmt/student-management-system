@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 60px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .footer-link a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>User Registration</h2>
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+
+    <form th:action="@{/register}" th:object="${user}" method="post">
+        <label>Full Name:</label>
+        <input type="text" th:field="*{fullName}" placeholder="Enter full name" required />
+
+        <label>Date of Birth:</label>
+        <input type="date" th:field="*{dateOfBirth}" />
+
+        <label>Address:</label>
+        <textarea th:field="*{address}" placeholder="Enter your address"></textarea>
+
+        <label>Email:</label>
+        <input type="email" th:field="*{email}" placeholder="Enter email address" required />
+
+        <label>Password:</label>
+        <input type="password" th:field="*{password}" placeholder="Enter password" required />
+
+        <button type="submit">Register</button>
+    </form>
+
+    <div class="footer-link">
+        <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+    </div>
+</div>
+</body>
+</html>

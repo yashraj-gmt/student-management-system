@@ -28,5 +28,4 @@ public class State {
     @JsonManagedReference
     private List<City> cities;
 
-    // Getters and setters
 }

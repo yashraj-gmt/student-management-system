@@ -217,14 +217,14 @@
 			    <div class="col-md-6">
 			        <!-- Show previous Aadhaar -->
 			        <div th:if="${student.aadhaarFileName != null}">
-			            <!-- If image -->
+			            <!-- if image -->
 			            <img th:if="${#strings.endsWith(student.aadhaarFileName.toLowerCase(), '.jpg') 
 			                        || #strings.endsWith(student.aadhaarFileName.toLowerCase(), '.jpeg') 
 			                        || #strings.endsWith(student.aadhaarFileName.toLowerCase(), '.png')}"
 			                th:src="@{'/student-documents/' + ${student.id} + '/aadhaar/' + ${student.aadhaarFileName}}"
 			                id="aadhaarPreview" style="height: 100px;" class="border p-1 rounded">
 			            
-			            <!-- If PDF -->
+			            <!-- if PDF -->
 			            <div th:if="${#strings.endsWith(student.aadhaarFileName.toLowerCase(), '.pdf')}">
 			                <img src="/image/pdf-icon.png" style="height: 100px;" class="border p-1 rounded" />
 			                <p class="mt-2 text-muted" th:text="${student.aadhaarFileName}"></p>

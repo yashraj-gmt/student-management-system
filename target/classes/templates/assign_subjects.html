@@ -48,7 +48,6 @@
 										th:text="${subject.name}"></label>
 								</div>
 								<div id="subjectError" class="text-danger d-none">
-									<!-- Error will be updated dynamically -->
 								</div>
 							</div>
 
@@ -81,7 +80,7 @@
 		function updateCheckboxState() {
 			const selected = document.querySelectorAll('.subject-checkbox:checked');
 
-			// Disable unchecked boxes if 5 are selected
+			/// Disable unchecked boxes if 5 are selected
 			if (selected.length >= 5) {
 				checkboxes.forEach(box => {
 					if (!box.checked) box.disabled = true;
@@ -90,7 +89,7 @@
 				checkboxes.forEach(box => box.disabled = false);
 			}
 
-			// Hide error when between 3 and 5 are selected
+			//// Hide error when between 3 and 5 are selected
 			if (selected.length >= 3 && selected.length <= 5) {
 				errorDiv.classList.add("d-none");
 			}

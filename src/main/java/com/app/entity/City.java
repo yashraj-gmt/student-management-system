@@ -27,5 +27,5 @@ public class City {
     @JsonBackReference
     private State state;
 
-    // Getters and setters
+
 }

@@ -120,6 +120,7 @@
 					<input type="text" th:field="*{mobileNumber}" class="form-control" />
 				</div>
 			</div>
+			
 
 			<!-- Email and Gender -->
 			<div class="row mb-3">
@@ -253,7 +254,7 @@
 			const fileType = file.type;
 			const fileName = file.name.toLowerCase();
 
-			// Reset error messages and thumbnail
+			/// Reset error messages and thumbnail
 			$('#imageError').hide();
 			$('#imageFormatError').hide();
 			$('#thumbnail').attr("src", "/image/user.png");
@@ -261,16 +262,15 @@
 			const allowedExtensions = ['.jpg', '.jpeg', '.png'];
 			const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
 
-			if (fileSize > 1024 * 1024) { // 1MB
+			if (fileSize > 1024 * 1024) { //// 1MB
 				$('#imageError').show();
 				$('#thumbnail').attr("src", "/image/user.png");
-				this.value = ''; // clear file input
+				this.value = ''; /// clear file input
 			} else if (!['image/jpeg', 'image/png'].includes(fileType)) {
 				$('#imageFormatError').show();
 				$('#thumbnail').attr("src", "/image/user.png");
-				this.value = ''; // clear file input
+				this.value = ''; 
 			} else {
-				// Show image preview
 				const reader = new FileReader();
 				reader.onload = function (e) {
 					$('#thumbnail').attr('src', e.target.result);
@@ -290,17 +290,16 @@
 			const fileType = file.type;
 			const fileName = file.name;
 
-			// Hide previous error messages
+		
 			$('#aadhaarError').hide();
 			$('#aadhaarPreview').hide();
 			$('#aadhaarFilename').hide();
 
-			if (fileSize > 1024 * 1024) { // 1MB
+			if (fileSize > 1024 * 1024) { 
 				$('#aadhaarError').text('File size exceeds 1MB. Please upload a smaller file.').show();
 			} else if (!['.jpg', '.jpeg', '.png', '.pdf'].some(ext => fileName.toLowerCase().endsWith(ext))) {
 				$('#aadhaarError').text('Please upload a valid Aadhaar file (JPG, PNG, PDF).').show();
 			} else {
-				// Show preview or filename for PDF
 				if (fileType === 'application/pdf') {
 					$('#aadhaarPreview').hide();
 					$('#aadhaarFilename').text(fileName).show();
@@ -324,7 +323,6 @@
 			const fileType = file.type;
 			const fileName = file.name;
 
-			// Hide previous error messages
 			$('#panError').hide();
 			$('#panPreview').hide();
 			$('#panFilename').hide();
@@ -334,7 +332,6 @@
 			} else if (!['.jpg', '.jpeg', '.png', '.pdf'].some(ext => fileName.toLowerCase().endsWith(ext))) {
 				$('#panError').text('Please upload a valid PAN file (JPG, PNG, PDF).').show();
 			} else {
-				// Show preview or filename for PDF
 				if (fileType === 'application/pdf') {
 					$('#panPreview').hide();
 					$('#panFilename').text(fileName).show();

@@ -2,6 +2,7 @@ package com.app.entity;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +16,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -105,9 +105,6 @@ public class Student {
 	)
 	private List<Subject> subjects;
 
-	@OneToMany(mappedBy = "student")
-	private List<StudentSubject> studentSubjects;
-
-
-	
+	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<StudentSubject> studentSubjects;	
 }
