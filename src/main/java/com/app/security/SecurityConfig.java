@@ -21,33 +21,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authenticationProvider(authProvider()) // Use custom authentication provider
+                .authenticationProvider(authProvider())
                 .authorizeRequests(auth -> auth
                         .requestMatchers("/register", "/login", "/forgot-password", "/verify-otp", "/reset-password/**", "/css/**").permitAll()  // Allow unauthenticated access
-                        .anyRequest().authenticated() // Require authentication for all other URLs
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login").permitAll()  // Custom login page
-                        .defaultSuccessUrl("/students", true) // Redirect to /students after successful login
-                        .failureUrl("/login?error") // Redirect on failure
+                        .defaultSuccessUrl("/students", true)
+                        .failureUrl("/login?error")
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // Logout URL
-                        .logoutSuccessUrl("/login?logout") // Redirect after logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
                 );
         return http.build();
     }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Bean to handle password encoding
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService((UserDetailsService) userDetailsService); // Use custom user details service
-        provider.setPasswordEncoder(passwordEncoder()); // Use BCrypt password encoder
+        provider.setUserDetailsService((UserDetailsService) userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
 }

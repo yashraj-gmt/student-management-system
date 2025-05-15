@@ -37,6 +37,7 @@
             border-radius: 5px;
         }
 
+
         button {
             width: 100%;
             padding: 12px;
@@ -71,6 +72,21 @@
         .footer-link a:hover {
             text-decoration: underline;
         }
+
+        .show-password {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .show-password label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+        }
+
     </style>
 </head>
 <body>
@@ -78,12 +94,12 @@
     <h2>User Registration</h2>
     <div th:if="${error}" class="error" th:text="${error}"></div>
 
-    <form th:action="@{/register}" th:object="${user}" method="post">
+    <form th:action="@{/register}" th:object="${user}" method="post" onsubmit="return validatePassword()">
         <label>Full Name:</label>
         <input type="text" th:field="*{fullName}" placeholder="Enter full name" required />
 
         <label>Date of Birth:</label>
-        <input type="date" th:field="*{dateOfBirth}" />
+        <input type="date" th:field="*{dateOfBirth}" max="${T(java.time.LocalDate).now()}" required />
 
         <label>Address:</label>
         <textarea th:field="*{address}" placeholder="Enter your address"></textarea>
@@ -92,7 +108,18 @@
         <input type="email" th:field="*{email}" placeholder="Enter email address" required />
 
         <label>Password:</label>
-        <input type="password" th:field="*{password}" placeholder="Enter password" required />
+        <input type="password" th:field="*{password}" placeholder="Enter password" id="password" required />
+
+        <label>Confirm Password:</label>
+        <input type="password" id="confirmPassword" placeholder="Confirm password" required />
+
+        <div class="show-password">
+            <label>
+                <input type="checkbox" id="showPassword" onclick="togglePasswords()" />
+                Show Password
+            </label>
+        </div>
+        
 
         <button type="submit">Register</button>
     </form>
@@ -101,5 +128,33 @@
         <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
     </div>
 </div>
+
+<script>
+    function togglePasswords() {
+        const pw = document.getElementById("password");
+        const cpw = document.getElementById("confirmPassword");
+        const type = pw.type === "password" ? "text" : "password";
+        pw.type = type;
+        cpw.type = type;
+    }
+
+    function validatePassword() {
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?#&])[A-Za-z\d@$!%*?#&]{8,}$/;
+
+        if (!regex.test(password)) {
+            alert("Password must be at least 8 characters and include:\n- 1 uppercase letter\n- 1 lowercase letter\n- 1 number\n- 1 special character.");
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
 </body>
 </html>

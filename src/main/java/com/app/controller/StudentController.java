@@ -69,6 +69,10 @@ public class StudentController {
         if (panFile.getSize() > 1 * 1024 * 1024) {
             bindingResult.rejectValue("panFileName", "error.student", "PAN file size exceeds 1MB limit.");
         }
+
+        if (student.getDateOfBirth() == null) {
+            bindingResult.rejectValue("dateOfBirth", "error.student", "Please enter a valid date of birth.");
+        }
         if (bindingResult.hasErrors()) {
             model.addAttribute("genders", List.of("Male", "Female", "Other"));
             model.addAttribute("hobbiesList", List.of("Reading", "Sports", "Music", "Traveling", "Other"));

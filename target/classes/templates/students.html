@@ -3,6 +3,9 @@
 <head>
     <title>Students</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -309,22 +312,33 @@
         deleteRow = null;
     }
 
+    function getCsrfToken() {
+        const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        return { token, header };
+    }
+
     function confirmDelete() {
+        const csrf = getCsrfToken();
+
         fetch(deleteUrl, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                [csrf.header]: csrf.token
+            }
         }).then(response => {
             if (response.ok) {
                 deleteRow.remove();
                 closeModal();
             } else {
-                alert("Error deleting student");
+                alert("Error deleting student. Please check CSRF configuration or server logs.");
             }
         });
     }
 
-
     document.getElementById("confirmDeleteBtn").addEventListener("click", confirmDelete);
 </script>
+
 
 </body>
 </html>

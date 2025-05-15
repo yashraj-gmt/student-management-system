@@ -96,6 +96,7 @@
 
 		<form th:action="@{/students}" enctype="multipart/form-data" th:object="${student}" method="post"
 			class="bg-white p-4 rounded shadow-sm">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
 			<!-- First Name and Last Name -->
 			<div class="row mb-3">
@@ -139,6 +140,15 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Date of Birth -->
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<label class="form-label">Date of Birth:</label>
+					<input type="date" th:field="*{dateOfBirth}" id="dob" class="form-control" required />
+				</div>
+			</div>
+
 
 			<!-- Hobbies -->
 			<div class="mb-3">
@@ -281,6 +291,7 @@
 		});
 
 
+
 		// Aadhaar file validation and preview
 		$('#aadhaarFile').change(function () {
 			const file = this.files[0];
@@ -357,6 +368,15 @@
 						cityDropdown.append('<option value="' + city.id + '">' + city.name + '</option>');
 					});
 				});
+			}
+		});
+
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const dobInput = document.getElementById('dob');
+			if (dobInput) {
+				const today = new Date().toISOString().split('T')[0];
+				dobInput.setAttribute('max', today);
 			}
 		});
 	</script>

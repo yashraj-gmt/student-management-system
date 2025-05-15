@@ -64,14 +64,15 @@ public class UserController {
             return "forgot_password";
         }
 
-        String otp = String.valueOf((int)(Math.random() * 900000) + 100000); // Generate OTP
-        long expiryTime = System.currentTimeMillis() + (5 * 60 * 1000); // OTP expiry time: 5 minutes
+        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+        long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
 
-        userService.saveOtp(user, otp, expiryTime); // Save OTP and expiry time
-        emailService.sendOtpEmail(user.getEmail(), otp); // Send OTP via email
+        userService.saveOtp(user, otp, expiryTime);
+        emailService.sendOtpEmail(user.getEmail(), otp);
 
-        model.addAttribute("email", email); // Pass email to the OTP form
-        return "verify_otp"; // Show OTP verification page
+        model.addAttribute("email", email);
+        model.addAttribute("otpExpiry", expiryTime);
+        return "verify_otp";
     }
 
     @GetMapping("/verify-otp")
@@ -81,6 +82,41 @@ public class UserController {
     }
 
     @PostMapping("/verify-otp")
+    public String verifyOtp(@RequestParam String email,
+                            @RequestParam String otp,
+                            Model model) {
+        User user = userService.findByEmail(email);
+        if (user == null) {
+            model.addAttribute("error", "Invalid request.");
+            return "verify_otp";
+        }
+
+        if (user.getOtpExpiry() < System.currentTimeMillis()) {
+            model.addAttribute("error", "OTP has expired!");
+            model.addAttribute("email", email);
+            model.addAttribute("otpExpiry", user.getOtpExpiry());
+            return "verify_otp";
+        }
+
+        if (!otp.equals(user.getOtp())) {
+            model.addAttribute("error", "Invalid OTP");
+            model.addAttribute("email", email);
+            model.addAttribute("otpExpiry", user.getOtpExpiry());
+            return "verify_otp";
+        }
+
+        // clears otp
+        user.setOtp(null);
+        user.setOtpExpiry(0L);
+        userService.saveUser(user);  // clear OTP
+
+        // Move to password reset
+        model.addAttribute("email", email);
+        return "reset_password";
+    }
+
+
+    /*@PostMapping("/verify-otp")
     public String verifyOtp(@RequestParam String email,
                             @RequestParam String otp,
                             Model model) {
@@ -98,7 +134,7 @@ public class UserController {
         // OTP verified successfully, now redirect to reset password page
         model.addAttribute("email", email);  // Pass email to reset password page
         return "reset_password";  // This should point to your reset_password.html page
-    }
+    }*/
 
 
 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
+
     @Autowired
     private JavaMailSender mailSender;
 
@@ -25,4 +26,5 @@ public class EmailService {
         message.setText("Your OTP for password reset is: " + otp);
         mailSender.send(message);
     }
+
 }

@@ -28,7 +28,8 @@
       font-weight: bold;
     }
 
-    input {
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -66,6 +67,10 @@
       display: block;
       margin-top: 5px;
     }
+
+    .show-password {
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
@@ -86,7 +91,12 @@
     <input type="text" name="username" required />
 
     <label>Password:</label>
-    <input type="password" name="password" required />
+    <input type="password" name="password" id="password" required />
+
+    <div class="show-password">
+      <input type="checkbox" id="showPassword" />
+      <label for="showPassword">Show Password</label>
+    </div>
 
     <button type="submit">Login</button>
   </form>
@@ -96,5 +106,13 @@
     <a th:href="@{/forgot-password}">Forgot Password?</a>
   </div>
 </div>
+
+<script>
+  // Toggle password visibility
+  document.getElementById('showPassword').addEventListener('change', function () {
+    const passwordField = document.getElementById('password');
+    passwordField.type = this.checked ? 'text' : 'password';
+  });
+</script>
 </body>
 </html>

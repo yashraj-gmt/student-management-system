@@ -140,6 +140,14 @@
 				</div>
 			</div>
 
+			<!-- Date of Birth -->
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<label class="form-label">Date of Birth:</label>
+					<input type="date" th:field="*{dateOfBirth}" id="dob" class="form-control" required/>
+				</div>
+			</div>
+
 			<!-- Hobbies -->
 			<div class="mb-3">
 				<label class="form-label">Hobbies:</label>
@@ -267,6 +275,15 @@
 	</div>
 
 	<script>
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const dobInput = document.getElementById('dob');
+			if (dobInput) {
+				const today = new Date().toISOString().split('T')[0];
+				dobInput.setAttribute('max', today);
+			}
+		});
+
 		// Dynamic City Dropdown based on selected State
 		$('#fileImage').change(function () {
 					const file = this.files[0];
@@ -385,6 +402,8 @@
 						});
 					}
 				});
+
+
 	</script>
 
 	<!-- Bootstrap 5 JS and dependencies -->

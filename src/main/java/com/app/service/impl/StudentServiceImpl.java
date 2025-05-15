@@ -102,6 +102,7 @@ public class StudentServiceImpl implements StudentService {
         existingStudent.setEmail(updatedData.getEmail());
         existingStudent.setGender(updatedData.getGender());
         existingStudent.setHobbies(String.join(",", hobbies));
+        existingStudent.setDateOfBirth(updatedData.getDateOfBirth());
         existingStudent.setDescription(updatedData.getDescription());
         existingStudent.setCity(updatedData.getCity());
 
