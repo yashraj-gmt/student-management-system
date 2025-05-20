@@ -15,6 +15,11 @@
       background-color: white;
       border-radius: 8px;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .logo {
+      width: 120px;
     }
 
     h2 {
@@ -26,21 +31,41 @@
       display: block;
       margin-bottom: 6px;
       font-weight: bold;
+      text-align: left;
     }
 
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
+    input[type="email"],
+    input[type="password"],
+    input[type="text"]#password{
+      width: 90%;
+      padding: 12px 14px;
+      margin-bottom: 10px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 6px;
+      font-size: 15px;
+      background-color: #fafafa;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+      outline: none;
+      box-shadow: 0 0 6px rgba(74, 144, 226, 0.4);
     }
 
     .error {
       color: red;
       text-align: center;
       margin-bottom: 10px;
+    }
+
+    .field-error {
+      color: red;
+      font-size: 13px;
+      margin: 2px 0 10px 2px;
+      display: block;
+      text-align: left;
     }
 
     button {
@@ -69,49 +94,139 @@
     }
 
     .show-password {
-      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px; /* Optional spacing between checkbox and label */
+      text-align: left;
+      margin: 10px 0;
     }
+
+
+    .success {
+      color: green;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
 <div class="form-container">
+  <!-- Logo image -->
+  <img th:src="@{/image/gm_technosys.png}" alt="Logo" class="logo" />
+
   <h2>User Login</h2>
 
-  <!-- Show error if login fails -->
-  <div th:if="${param.error}" class="error">Invalid email or password</div>
+  <!-- Error messages -->
+  <div th:if="${param.error == 'wrong-password'}" class="error">Incorrect password. Try again.</div>
+  <div th:if="${param.error == 'user-not-found'}" class="error">Email not registered.</div>
+  <div th:if="${param.error == 'unknown'}" class="error">Login failed due to unknown error.</div>
+  <div th:if="${error}" class="error" th:text="${error}"></div>
 
-  <!-- Show logout message -->
   <div th:if="${param.logout}" class="error" style="color: green;">You have been logged out.</div>
-
-  <!-- Show registration success -->
   <div th:if="${param.success}" class="error" style="color: green;">Registration successful! Please log in.</div>
+  <!-- Show success message after redirect -->
+  <div th:if="${message}" class="success">
+    <p th:text="${message}"></p>
+  </div>
 
-  <form th:action="@{/login}" method="post">
+  <!-- Login form -->
+  <form th:action="@{/login}" method="post" onsubmit="return validateLogin()" novalidate>
+
     <label>Email:</label>
-    <input type="text" name="username" required />
+<!--    <input type="email" name="email" id="loginEmail" required-->
+<!--           placeholder="Enter your email" th:value="${email}" />-->
+<!--    <span id="emailError" class="error" style="display: none;">Please enter a valid email.</span>-->
+    <input type="email" name="email" id="loginEmail" required placeholder="Enter your email" th:value="${email}" />
+    <span id="emailError" class="field-error" style="display: none;"></span>
 
     <label>Password:</label>
-    <input type="password" name="password" id="password" required />
+    <input type="password" name="password" id="password" required placeholder="Enter your password" />
+    <span id="passwordError" class="field-error" style="display: none;"></span>
+<!--    <input type="password" name="password" id="password" required placeholder="Enter your password" />-->
+<!--    <span id="passwordError" class="error" style="display: none;">Password is required.</span>-->
 
     <div class="show-password">
       <input type="checkbox" id="showPassword" />
       <label for="showPassword">Show Password</label>
     </div>
 
+
     <button type="submit">Login</button>
+    <input type="hidden" name="loginAttempted" id="loginAttempted" value="false" />
   </form>
 
   <div class="footer-link">
     <a th:href="@{/register}">Don't have an account? Register</a>
-    <a th:href="@{/forgot-password}">Forgot Password?</a>
+    <a href="javascript:void(0);" onclick="redirectToForgotPassword()">Forgot Password?</a>
   </div>
 </div>
 
 <script>
+  function validateLogin() {
+    let email = document.getElementById("loginEmail").value.trim();
+    let password = document.getElementById("password").value.trim();
+
+    let emailError = document.getElementById("emailError");
+    let passwordError = document.getElementById("passwordError");
+
+    let valid = true;
+
+    // Reset error display
+    emailError.textContent = "";
+    passwordError.textContent = "";
+
+    // Email validation
+    if (!email) {
+      emailError.textContent = "Email is required.";
+      emailError.style.display = "block";
+      valid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailError.textContent = "Please enter a valid email.";
+      emailError.style.display = "block";
+      valid = false;
+    }
+
+    // Password validation
+    if (!password) {
+      passwordError.textContent = "Password is required.";
+      passwordError.style.display = "block";
+      valid = false;
+    }
+
+    // Save email
+    if (valid) {
+      sessionStorage.setItem("emailForRecovery", email);
+      document.getElementById("loginAttempted").value = "true";
+      fetch('/save-login-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'email=' + encodeURIComponent(email)
+      });
+    }
+
+    return valid;
+  }
+
+
+  function redirectToForgotPassword() {
+    const email = document.getElementById("loginEmail").value;
+    if (email) {
+      window.location.href = `/forgot-password?email=${encodeURIComponent(email)}`;
+    } else {
+      window.location.href = '/forgot-password';
+    }
+  }
+
   // Toggle password visibility
-  document.getElementById('showPassword').addEventListener('change', function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    const showPasswordCheckbox = document.getElementById('showPassword');
     const passwordField = document.getElementById('password');
-    passwordField.type = this.checked ? 'text' : 'password';
+
+    showPasswordCheckbox.addEventListener('change', function () {
+      passwordField.type = this.checked ? 'text' : 'password';
+    });
   });
 </script>
 </body>

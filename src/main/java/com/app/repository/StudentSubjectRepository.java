@@ -10,9 +10,14 @@ import com.app.entity.StudentSubject;
 
 import jakarta.transaction.Transactional;
 
+import java.util.List;
+
 @Transactional
 public interface StudentSubjectRepository extends JpaRepository<StudentSubject, Long> {
     @Modifying
     @Query("DELETE FROM StudentSubject ss WHERE ss.student = :student")
     void deleteByStudent(@Param("student") Student student);
+
+    List<StudentSubject> findByStudent(Student student);
+
 }

@@ -32,11 +32,17 @@
         input, textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 18px;
+            margin-bottom: 8px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
+        .field-error {
+            color: red;
+            font-size: 13px;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
 
         button {
             width: 100%;
@@ -83,8 +89,70 @@
         .show-password label {
             display: flex;
             align-items: center;
+
             gap: 8px;
             font-weight: normal;
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 9999; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+        }
+
+        /* Modal content box */
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto; /* 15% from top, centered */
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        /* Modal buttons */
+        .modal-buttons {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .modal-buttons button {
+            padding: 10px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: 100px;
+        }
+
+        .btn-confirm {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background-color: #45a049;
+        }
+
+        .btn-cancel {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background-color: #da190b;
+        }
+        .required-star {
+            color: red;
+            margin-left: 3px;
         }
 
     </style>
@@ -94,38 +162,57 @@
     <h2>User Registration</h2>
     <div th:if="${error}" class="error" th:text="${error}"></div>
 
-    <form th:action="@{/register}" th:object="${user}" method="post" onsubmit="return validatePassword()">
-        <label>Full Name:</label>
-        <input type="text" th:field="*{fullName}" placeholder="Enter full name" required />
+    <form id="registrationForm" th:action="@{/register}" th:object="${user}" method="post"
+          onsubmit="return onSubmit(event)">
+        <!-- Your existing inputs -->
+        <label>Full Name<span class="required-star">*</span>:</label>
+        <input type="text" id="fullName" th:field="*{fullName}" placeholder="Enter full name"/>
+        <div class="field-error" id="fullName-error"></div>
 
-        <label>Date of Birth:</label>
-        <input type="date" th:field="*{dateOfBirth}" max="${T(java.time.LocalDate).now()}" required />
+        <label>Date of Birth<span class="required-star">*</span>:</label>
+        <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}" max="${T(java.time.LocalDate).now()}"/>
+        <div class="field-error" id="dateOfBirth-error"></div>
 
-        <label>Address:</label>
-        <textarea th:field="*{address}" placeholder="Enter your address"></textarea>
+        <label>Address<span class="required-star">*</span>:</label>
+        <textarea id="address" th:field="*{address}" placeholder="Enter your address"></textarea>
+        <div class="field-error" id="address-error"></div>
 
-        <label>Email:</label>
-        <input type="email" th:field="*{email}" placeholder="Enter email address" required />
+        <label>Email<span class="required-star">*</span>:</label>
+        <input type="email" id="email" th:field="*{email}" placeholder="Enter email address"/>
+        <div class="field-error" id="email-error"></div>
 
-        <label>Password:</label>
-        <input type="password" th:field="*{password}" placeholder="Enter password" id="password" required />
+        <label>Password<span class="required-star">*</span>:</label>
+        <input type="password" id="password" th:field="*{password}" placeholder="Enter password"/>
+        <div class="field-error" id="password-error"></div>
 
-        <label>Confirm Password:</label>
-        <input type="password" id="confirmPassword" placeholder="Confirm password" required />
+        <label>Confirm Password<span class="required-star">*</span>:</label>
+        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Confirm password"/>
+        <div class="field-error" id="confirmPassword-error"></div>
 
         <div class="show-password">
             <label>
-                <input type="checkbox" id="showPassword" onclick="togglePasswords()" />
-                Show Password
+                <input type="checkbox" id="showPassword" onclick="togglePasswords()"/>
+                <h4>Show_Password</h4>
             </label>
         </div>
-        
 
         <button type="submit">Register</button>
     </form>
 
     <div class="footer-link">
         <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h3>Confirm Registration</h3>
+        <p>Are you sure you want to register with the provided information?</p>
+        <div class="modal-buttons">
+            <button class="btn-confirm" id="modalConfirmBtn">Yes, Register</button>
+            <button class="btn-cancel" id="modalCancelBtn">Cancel</button>
+        </div>
     </div>
 </div>
 
@@ -138,23 +225,126 @@
         cpw.type = type;
     }
 
-    function validatePassword() {
+    function showError(id, message) {
+        document.getElementById(id + '-error').innerText = message;
+    }
+
+    function clearErrors() {
+        const errors = document.querySelectorAll('.field-error');
+        errors.forEach(e => e.innerText = '');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dobInput = document.getElementById('dateOfBirth');
+        if (dobInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dobInput.setAttribute('max', today);
+        }
+    });
+
+    // Your existing validateForm function
+    function validateForm() {
+        clearErrors();
+        let valid = true;
+
+        const fullName = document.getElementById("fullName").value.trim();
+        const dob = document.getElementById("dateOfBirth").value;
+        const address = document.getElementById("address").value.trim();
+        const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
         const confirmPassword = document.getElementById("confirmPassword").value;
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?#&])[A-Za-z\d@$!%*?#&]{8,}$/;
 
-        if (!regex.test(password)) {
-            alert("Password must be at least 8 characters and include:\n- 1 uppercase letter\n- 1 lowercase letter\n- 1 number\n- 1 special character.");
-            return false;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?#&])[A-Za-z\d@$!%*?#&]{8,}$/;
+
+        if (fullName === "") {
+            showError("fullName", "Full name is required.");
+            valid = false;
         }
 
-        if (password !== confirmPassword) {
-            alert("Passwords do not match.");
-            return false;
+        if (dob === "") {
+            showError("dateOfBirth", "Date of birth is required.");
+            valid = false;
         }
 
-        return true;
+        if (address === "") {
+            showError("address", "Address is required.");
+            valid = false;
+        }
+
+        if (!emailRegex.test(email)) {
+            showError("email", "Enter a valid email address.");
+            valid = false;
+        }
+
+        if (!passwordRegex.test(password)) {
+            showError("password", "Must be 8+ chars, include upper, lower, number, special.");
+            valid = false;
+        }
+
+        if (confirmPassword !== password) {
+            showError("confirmPassword", "Passwords do not match.");
+            valid = false;
+        }
+
+        return valid;
     }
+
+    // Intercept form submission to show modal on valid form
+    function onSubmit(event) {
+        event.preventDefault(); // Stop form from submitting right away
+        if (validateForm()) {
+            // Show confirmation modal
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+        // If invalid, errors are shown by validateForm, and form is not submitted
+        return false;
+    }
+
+    // Add this function to set up listeners on each field
+    function setupLiveValidation() {
+        const fields = ["fullName", "dateOfBirth", "address", "email", "password", "confirmPassword"];
+        fields.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener("input", function () {
+                    document.getElementById(id + "-error").innerText = "";
+                });
+            }
+        });
+    }
+
+    // Call the function after the DOM is ready
+    document.addEventListener("DOMContentLoaded", function () {
+        const dobInput = document.getElementById('dateOfBirth');
+        if (dobInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dobInput.setAttribute('max', today);
+        }
+        setupLiveValidation(); // ✅ Set up real-time error clearing
+    });
+
+
+    // Modal buttons
+    document.getElementById('modalConfirmBtn').addEventListener('click', function () {
+        // Submit form after confirmation
+        document.getElementById('confirmModal').style.display = 'none';
+        document.getElementById('registrationForm').submit();
+    });
+
+    document.getElementById('modalCancelBtn').addEventListener('click', function () {
+        // Close modal without submitting
+        document.getElementById('confirmModal').style.display = 'none';
+    });
+
+    // Close modal if user clicks outside modal content
+    window.onclick = function (event) {
+        const modal = document.getElementById('confirmModal');
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
 </script>
+
 </body>
 </html>

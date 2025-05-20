@@ -60,19 +60,18 @@ public class StudentController {
         }
 
         // Check file sizes (max 1MB)
-        if (multipartFile.getSize() > 1 * 1024 * 1024) {
+        if (multipartFile.getSize() > 1 * 1024 * 1024)
             bindingResult.rejectValue("photo", "error.student", "Photo file size exceeds 1MB limit.");
-        }
-        if (aadhaarFile.getSize() > 1 * 1024 * 1024) {
-            bindingResult.rejectValue("aadhaarFileName", "error.student", "Aadhaar file size exceeds 1MB limit.");
-        }
-        if (panFile.getSize() > 1 * 1024 * 1024) {
-            bindingResult.rejectValue("panFileName", "error.student", "PAN file size exceeds 1MB limit.");
-        }
 
-        if (student.getDateOfBirth() == null) {
+        if (aadhaarFile.getSize() > 1 * 1024 * 1024)
+            bindingResult.rejectValue("aadhaarFileName", "error.student", "Aadhaar file size exceeds 1MB limit.");
+
+        if (panFile.getSize() > 1 * 1024 * 1024)
+            bindingResult.rejectValue("panFileName", "error.student", "PAN file size exceeds 1MB limit.");
+
+        if (student.getDateOfBirth() == null)
             bindingResult.rejectValue("dateOfBirth", "error.student", "Please enter a valid date of birth.");
-        }
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("genders", List.of("Male", "Female", "Other"));
             model.addAttribute("hobbiesList", List.of("Reading", "Sports", "Music", "Traveling", "Other"));

@@ -4,11 +4,14 @@ import com.app.entity.User;
 import com.app.service.EmailService;
 import com.app.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
@@ -24,6 +27,12 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @GetMapping("/home")
+    public String homePage() {
+        return "home";
+    }
+
+
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("user", new User());
@@ -31,28 +40,54 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute User user, Model model) {
+    public String registerUser(@ModelAttribute User user,
+                               @RequestParam("confirmPassword") String confirmPassword,
+                               Model model) {
+        // Check if email is already registered
         if (userService.findByEmail(user.getEmail()) != null) {
             model.addAttribute("error", "Email already registered!");
             return "register";
         }
-        userService.saveUser(user);  // Password is encoded in service
+
+        // Check if password and confirmPassword match
+        if (!user.getPassword().equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match!");
+            return "register";
+        }
+
+        // Save user (password should be encoded in the service layer)
+        userService.saveUser(user);
         return "redirect:/login?success";
     }
 
     @GetMapping("/login")
-    public String loginForm() {
-        return "login";  // Spring Security handles actual login POST
+    public String loginForm(@RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "email", required = false) String email,
+                            Model model) {
+        if (error != null) {
+            if ("wrong-password".equals(error)) {
+                model.addAttribute("error", "Incorrect password. Try again.");
+            } else if ("user-not-found".equals(error)) {
+                model.addAttribute("error", "Email not registered.");
+            } else {
+                model.addAttribute("error", "Login failed due to unknown error.");
+            }
+        }
+        model.addAttribute("email", email); // to prefill email field
+        return "login";
     }
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();  // Optional if using Spring Security logout
+        session.invalidate();  // optional if using Spring Security logout
         return "redirect:/login?logout";
     }
 
     @GetMapping("/forgot-password")
-    public String forgotPasswordForm() {
+    public String forgotPasswordForm(@RequestParam(value = "email", required = false) String email, Model model) {
+        if (email != null) {
+            model.addAttribute("email", email);
+        }
         return "forgot_password";
     }
 
@@ -73,6 +108,11 @@ public class UserController {
         model.addAttribute("email", email);
         model.addAttribute("otpExpiry", expiryTime);
         return "verify_otp";
+    }
+    @PostMapping("/save-login-email")
+    @ResponseBody
+    public void saveLoginEmail(@RequestParam String email, HttpSession session) {
+        session.setAttribute("emailForLogin", email);
     }
 
     @GetMapping("/verify-otp")
@@ -115,29 +155,6 @@ public class UserController {
         return "reset_password";
     }
 
-
-    /*@PostMapping("/verify-otp")
-    public String verifyOtp(@RequestParam String email,
-                            @RequestParam String otp,
-                            Model model) {
-        User user = userService.findByEmail(email);
-        if (user == null || user.getOtp() == null || !user.getOtp().equals(otp)) {
-            model.addAttribute("error", "Invalid OTP");
-            return "verify_otp"; // If OTP is invalid, stay on the OTP verification page
-        }
-
-        if (user.getOtpExpiry() < System.currentTimeMillis()) {
-            model.addAttribute("error", "OTP has expired");
-            return "verify_otp"; // If OTP expired, stay on the OTP verification page
-        }
-
-        // OTP verified successfully, now redirect to reset password page
-        model.addAttribute("email", email);  // Pass email to reset password page
-        return "reset_password";  // This should point to your reset_password.html page
-    }*/
-
-
-
     @GetMapping("/reset-password")
     public String resetPasswordForm(@RequestParam String email, Model model) {
         model.addAttribute("email", email); // Pass email to the reset form
@@ -147,64 +164,15 @@ public class UserController {
     @PostMapping("/reset-password")
     public String processResetPassword(@RequestParam String email,
                                        @RequestParam String newPassword,
+                                       RedirectAttributes redirectAttributes,
                                        Model model) {
         User user = userService.findByEmail(email);
         if (user == null) {
             model.addAttribute("error", "Invalid request.");
             return "reset_password"; // Invalid user or session
         }
-
+        redirectAttributes.addFlashAttribute("message", "Password reset successfully. Please login.");
         userService.updatePassword(user, newPassword); // Update the password
         return "redirect:/login?resetSuccess"; // Redirect to login page with success message
     }
 }
-
-    /*@GetMapping("/forgot-password")
-    public String forgotPasswordForm() {
-        return "forgot_password";
-    }
-
-    @PostMapping("/forgot-password")
-    public String processForgotPassword(@RequestParam String email, Model model) {
-        User user = userService.findByEmail(email);
-        if (user == null) {
-            model.addAttribute("error", "No account found.");
-            return "forgot_password";
-        }
-
-        String token = UUID.randomUUID().toString();
-        user.setResetToken(token);
-        userService.saveUser(user);
-
-        String resetLink = "http://localhost:8080/reset-password?token=" + token;
-        emailService.sendResetPasswordEmail(user.getEmail(), resetLink);
-
-        model.addAttribute("message", "Reset link sent to your email.");
-        return "forgot_password";
-    }
-
-    @GetMapping("/reset-password")
-    public String resetPasswordForm(@RequestParam String token, Model model) {
-        model.addAttribute("token", token);
-        return "reset_password";
-    }
-
-    @PostMapping("/reset-password")
-    public String processResetPassword(@RequestParam String token,
-                                       @RequestParam String newPassword,
-                                       Model model) {
-        User user = userService.findByResetToken(token);
-        if (user == null) {
-            model.addAttribute("error", "Invalid token");
-            return "reset_password";
-        }
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        user.setResetToken(null);
-        userService.saveUser(user);
-
-        return "redirect:/login?resetSuccess";
-    }
-
-
-*/

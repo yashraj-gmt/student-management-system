@@ -44,6 +44,7 @@ public class SubjectController {
     @GetMapping("/delete/{id}")
     public String deleteSubject(@PathVariable Long id) {
         subjectService.deleteSubjectById(id);
-        return "redirect:/subjects";
+        return "redirect:/subjects?deleted=true";
     }
+
 }

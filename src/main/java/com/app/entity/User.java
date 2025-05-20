@@ -1,6 +1,10 @@
 package com.app.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,19 +21,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String fullName;
 
     private String dateOfBirth;
+
     private String address;
 
-    @Column(nullable = false, unique = true)
+
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
+    @Transient
+    private String confirmPassword;
+
     private String otp;
+
     private Long otpExpiry; // epoch millis
 
     @ElementCollection(fetch = FetchType.EAGER)
