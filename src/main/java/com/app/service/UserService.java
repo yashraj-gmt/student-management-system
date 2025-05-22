@@ -13,4 +13,6 @@ public interface UserService {
     void updatePassword(User user, String rawPassword);
 
     void saveOtp(User user, String otp, long expiryTime);
+
+    void generateAndSendOtp(User user);
 }

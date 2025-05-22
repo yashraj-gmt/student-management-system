@@ -4,7 +4,11 @@ import com.app.entity.Student;
 import com.app.repository.StudentRepository;
 import com.app.service.FileUploadService;
 import com.app.service.StudentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -134,6 +138,35 @@ public class StudentServiceImpl implements StudentService {
         }
 
         return studentRepository.save(existingStudent);
+    }
+
+    public void validateStudent(Student student, MultipartFile photo,
+                                MultipartFile aadhaarFile, MultipartFile panFile,
+                                    BindingResult result) {
+
+        if (student.getDateOfBirth() == null) {
+            result.rejectValue("dateOfBirth", "error.student", "Please enter a valid date of birth.");
+        }
+
+        final long MAX_FILE_SIZE = 1 * 1024 * 1024;
+
+        if (photo != null && photo.getSize() > MAX_FILE_SIZE) {
+            result.rejectValue("photo", "error.student", "Photo file size exceeds 1MB limit.");
+        }
+
+        if (aadhaarFile != null && aadhaarFile.getSize() > MAX_FILE_SIZE) {
+            result.rejectValue("aadhaarFileName", "error.student", "Aadhaar file size exceeds 1MB limit.");
+        }
+
+        if (panFile != null && panFile.getSize() > MAX_FILE_SIZE) {
+            result.rejectValue("panFileName", "error.student", "PAN file size exceeds 1MB limit.");
+        }
+    }
+
+    @Override
+    public Page<Student> getPaginatedStudents(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return studentRepository.findAll(pageable);
     }
 
 

@@ -3,8 +3,8 @@
 <head>
     <title>Students</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -15,6 +15,7 @@
             padding: 0;
             background-color: #f4f4f4;
         }
+
         @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
 
         .container {
@@ -194,6 +195,7 @@
             background-color: #6c757d;
             color: white;
         }
+
         /*.navbar{*/
         /*    background: #ffffff;*/
         /*    background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(59, 49, 49, 1) 83%, rgba(0, 0, 0, 1) 100%);*/
@@ -202,11 +204,12 @@
         .logo {
             width: 120px;
         }
-        .navbar-left{
+
+        .navbar-left {
             justify-content: start;
         }
 
-        .delete{
+        .delete {
             background-color: #dc3545;
         }
 
@@ -224,6 +227,90 @@
         .navbar-nav .nav-link:hover {
             color: #ffc107 !important;
         }
+
+        .navbar-toggler {
+            border-color: #007bff;
+            background-color: #ffffff;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,123,255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+
+        /* Container styling */
+        .pagination-container {
+            background: #fafafa;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Label and select styling */
+        .page-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 0;
+        }
+
+        .page-size-select {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        /* Page info */
+        .page-info {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Pagination styling */
+        .pagination-wrapper {
+            text-align: center;
+        }
+
+        .pagination-flat {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .pagination-flat li a {
+            display: block;
+            padding: 8px 14px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .pagination-flat li a:hover {
+            background-color: #f0f0f0;
+            border-color: #999;
+            color: #000;
+        }
+
+        /* Active and disabled states */
+        .pagination-flat li.active a {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .pagination-flat li.disabled a {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
 
     </style>
 </head>
@@ -246,11 +333,13 @@
                 <li class="nav-item"><a class="nav-link" href="/students">Student List</a></li>
                 <li class="nav-item"><a class="nav-link" href="/students/new">Add Student</a></li>
                 <li class="nav-item"><a class="nav-link" href="/assign-subjects">Assign Subjects</a></li>
-                <li class="nav-item"><a class="nav-link" href="/assign-subjects/student-subjects">Students-Subjects</a></li>
+                <li class="nav-item"><a class="nav-link" href="/assign-subjects/student-subjects">Students-Subjects</a>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="/subjects">Add Subjects</a></li>
             </ul>
             <form th:action="@{/logout}" method="post" class="d-flex">
-                <button type="submit" class="logout-button rounded"><span class="m-2">Logout</span>  <i class="bi bi-box-arrow-right"></i></button>
+                <button type="submit" class="logout-button rounded"><span class="m-1">Logout</span> <i
+                        class="bi bi-box-arrow-right"></i></button>
             </form>
         </div>
     </div>
@@ -259,19 +348,19 @@
 <!-- Main Container -->
 <div class="container-fluid">
     <h1 class="bg-light mt-4 mb-2 ">Student List</h1>
-<!--    <a class="button" th:href="@{/students/new}">Add Student</a>-->
-<!--    <form action="/students/search" method="get" style="margin-bottom: 20px;">-->
-<!--        <input type="text" name="keyword" placeholder="Search by name or email" required/>-->
-<!--        <button type="submit">Search</button>-->
-<!--    </form>-->
+    <!--    <a class="button" th:href="@{/students/new}">Add Student</a>-->
+    <!--    <form action="/students/search" method="get" style="margin-bottom: 20px;">-->
+    <!--        <input type="text" name="keyword" placeholder="Search by name or email" required/>-->
+    <!--        <button type="submit">Search</button>-->
+    <!--    </form>-->
     <div class="row mb-4 align-items-center">
         <div class="col-md-4 mb-2 mb-md-0">
             <a class="btn btn-success w-100" th:href="@{/students/new}">Add Student</a>
         </div>
         <div class="col-md-8">
             <form class="d-flex" action="/students/search" method="get">
-                <input type="text" name="keyword" class="form-control me-2" placeholder="Search by name or email" required  />
-
+                <input type="text" id="searchInput" name="keyword" class="form-control me-2"
+                       placeholder="Search by name or email" required/>
                 <button type="submit" class="btn btn-primary">Search</button>
             </form>
         </div>
@@ -279,8 +368,9 @@
 
     <div class="table-wrapper">
         <table>
+            <thead>
             <tr>
-                <th>ID</th>
+                <th>Sr. No.</th>
                 <th>Photo</th>
                 <th>First Name</th>
                 <th>Last Name</th>
@@ -294,8 +384,15 @@
                 <th>City</th>
                 <th>Actions</th>
             </tr>
-            <tr th:each="student : ${students}">
-                <td th:text="${student.id}"></td>
+            </thead>
+            <tbody id="searchResults">
+            <!--            <tr th:each="student : ${studentPage.content}">-->
+            <!--                <td th:text="${student.id}"></td>-->
+            <tr th:each="student, studentStat : ${studentPage.content}">
+
+<!--                <td th:text="${studentStat.index + 1 + (currentPage * studentPage.size)}"></td>-->
+                <td th:text="${studentStat.index + 1 + (currentPage * studentPage.size)}"></td>
+
                 <td>
                     <img th:if="${student.photo != null and !#strings.isEmpty(student.photo)}"
                          th:src="@{'/student-photos/' + ${student.id} + '/' + ${student.photo}}"
@@ -307,7 +404,7 @@
 
                 <td th:text="${student.firstName}"></td>
                 <td th:text="${student.lastName}"></td>
-                <td th:text="${student.fatherName}"></td>
+                <td th:text="${student.fatherName}"></td>   
                 <td th:text="${student.mobileNumber}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.gender}"></td>
@@ -326,10 +423,54 @@
                     </div>
                 </td>
             </tr>
+            </tbody>
         </table>
     </div>
+
+
 </div>
 
+<div class="container-fluid mt-4 pagination-container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <form method="get" action="/students" class="d-flex align-items-center gap-2">
+            <label for="size" class="page-label">Rows per page:</label>
+            <select name="size" id="size" class="page-size-select" onchange="this.form.submit()">
+                <option th:value="5" th:selected="${studentPage.size == 5}">5</option>
+                <option th:value="10" th:selected="${studentPage.size == 10}">10</option>
+                <option th:value="20" th:selected="${studentPage.size == 20}">20</option>
+            </select>
+            <input type="hidden" name="page" th:value="${currentPage}"/>
+        </form>
+
+        <div class="page-info">
+            Page <strong th:text="${currentPage + 1}">1</strong> of <strong th:text="${totalPages}">1</strong>
+        </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <nav aria-label="Page navigation" class="pagination-wrapper">
+        <ul class="pagination-flat">
+
+            <!-- Previous Button -->
+            <li th:classappend="${currentPage == 0} ? 'disabled'">
+                <a th:href="@{/students(page=${currentPage - 1}, size=${studentPage.size})}">&laquo;</a>
+            </li>
+
+            <!-- Page Numbers -->
+            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a th:href="@{/students(page=${i}, size=${studentPage.size})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+
+            <!-- Next Button -->
+            <li th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                <a th:href="@{/students(page=${currentPage + 1}, size=${studentPage.size})}">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal">
@@ -343,7 +484,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const deleteButtons = document.querySelectorAll('.btn-delete');
@@ -380,6 +521,8 @@
                                     text: 'Student deleted successfully.'
                                 }).then(() => {
                                     row.remove();
+                                    // updateSerialNumbers();
+                                    window.location.reload();
                                 });
                             } else {
                                 Swal.fire({
@@ -400,6 +543,58 @@
             });
         });
     });
+
+    // Recalculate serial numbers after a row is removed
+    function updateSerialNumbers() {
+        const rows = document.querySelectorAll('#searchResults tr');
+        const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 0;
+        const pageSize = parseInt(document.getElementById('size')?.value || 10); // fallback to 10 if not found
+
+        rows.forEach((row, index) => {
+            const serialCell = row.querySelector('td');
+            if (serialCell) {
+                serialCell.textContent = (currentPage * pageSize) + index + 1;
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        let debounceTimer;
+
+        $('#searchInput').on('keyup', function () {
+            clearTimeout(debounceTimer);
+            const keyword = $(this).val().trim();
+
+            debounceTimer = setTimeout(function () {
+                if (keyword.length > 1) {
+                    // Perform fast search
+                    $.ajax({
+                        url: '/students/fast-search',
+                        type: 'GET',
+                        data: {keyword: keyword},
+                        success: function (students) {
+                            renderStudentsTable(students);
+                        }
+                    });
+                } else if (keyword.length === 0) {
+                    // If input is empty, load all students
+                    $.ajax({
+                        url: '/students/all',
+                        type: 'GET',
+                        success: function (students) {
+                            renderStudentsTable(students);
+                        }
+                    });
+                } else {
+                    $('#searchResults').html('');
+                }
+            }, 300);
+        });
+
+    });
+
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

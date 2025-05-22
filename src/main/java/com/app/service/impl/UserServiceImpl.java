@@ -2,19 +2,25 @@ package com.app.service.impl;
 
 import com.app.entity.User;
 import com.app.repository.UserRepository;
+import com.app.service.EmailService;
 import com.app.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository userRepository, EmailService emailService, BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public void saveUser(User user) {
@@ -40,6 +46,17 @@ public class UserServiceImpl implements UserService {
         user.setOtpExpiry(null);
         userRepository.save(user);
     }
+
+    @Override
+    public void generateAndSendOtp(User user) {
+        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+        long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
+        user.setOtp(otp);
+        user.setOtpExpiry(expiryTime);
+        userRepository.save(user);
+        emailService.sendOtpEmail(user.getEmail(), otp);
+    }
+
 
     @Override
     public void saveOtp(User user, String otp, long expiryTime) {

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import com.app.entity.Student;
+import org.springframework.data.domain.Page;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface StudentService {
@@ -26,5 +28,9 @@ public interface StudentService {
 	Student updateStudentWithFiles(Long id, Student updatedData, List<String> hobbies,
 								   MultipartFile photo, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;
 
+	void validateStudent(Student student, MultipartFile photo,
+								MultipartFile aadhaarFile, MultipartFile panFile,
+								BindingResult result);
 
+	Page<Student> getPaginatedStudents(int page, int size);
 }

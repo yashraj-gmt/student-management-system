@@ -3,12 +3,20 @@ package com.app.controller;
 import java.io.IOException;
 import java.util.List;
 
+import com.app.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.app.entity.City;
@@ -16,11 +24,20 @@ import com.app.entity.Student;
 import com.app.service.LocationService;
 import com.app.service.StudentService;
 
+/*
+    controller for handling student related operations like
+    creating, updating, listing, deleting, and searching
+*/
 @Controller
 public class StudentController {
 
     private final StudentService studentService;
     private final LocationService locationService;
+    private static final List<String> GENDERS = List.of("Male", "Female", "Other");
+    private static final List<String> HOBBIES = List.of("Reading", "Sports", "Music", "Traveling", "Other");
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Autowired
     public StudentController(StudentService studentService, LocationService locationService) {
@@ -28,68 +45,64 @@ public class StudentController {
         this.locationService = locationService;
     }
 
+    private void populateFormModel(Model model) {
+        model.addAttribute("genders", GENDERS);
+        model.addAttribute("hobbiesList", HOBBIES);
+        model.addAttribute("states", locationService.getAllStates());
+    }
+
+    // method for listing all students
+//    @GetMapping("/students")
+//    public String listStudents(Model model) {
+//        model.addAttribute("students", studentService.getAllStudents());
+//        return "students";
+//    }
+
     @GetMapping("/students")
-    public String listStudents(Model model) {
-        model.addAttribute("students", studentService.getAllStudents());
+    public String listStudents(@RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "5") int size,
+                               Model model) {
+        Page<Student> studentPage = studentService.getPaginatedStudents(page, size);
+        model.addAttribute("studentPage", studentPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", studentPage.getTotalPages());
         return "students";
     }
 
+    // method for adding new student
     @GetMapping("/students/new")
     public String createStudentForm(Model model) {
         model.addAttribute("student", new Student());
-        model.addAttribute("genders", List.of("Male", "Female", "Other"));
-        model.addAttribute("hobbiesList", List.of("Reading", "Sports", "Music", "Traveling", "Other"));
-        model.addAttribute("states", locationService.getAllStates());
+        populateFormModel(model);
         return "create_student";
     }
 
+    // Save students data
     @PostMapping("/students")
     public String saveStudent(@ModelAttribute("student") Student student, BindingResult bindingResult,
-                              @RequestParam("image") MultipartFile multipartFile,
+                              @RequestParam("image") MultipartFile photo,
                               @RequestParam("hobbies") List<String> hobbies,
                               @RequestParam("aadhaar") MultipartFile aadhaarFile,
                               @RequestParam("pan") MultipartFile panFile,
                               Model model) throws IOException {
 
-        if (bindingResult.hasErrors()) {
+        studentService.validateStudent(student, photo, aadhaarFile, panFile, bindingResult);
 
-            model.addAttribute("genders", List.of("Male", "Female", "Other"));
-            model.addAttribute("hobbiesList", List.of("Reading", "Sports", "Music", "Traveling", "Other"));
-            model.addAttribute("states", locationService.getAllStates());
+        if (bindingResult.hasErrors()) {
+            populateFormModel(model);
             return "create_student";
         }
 
-        // Check file sizes (max 1MB)
-        if (multipartFile.getSize() > 1 * 1024 * 1024)
-            bindingResult.rejectValue("photo", "error.student", "Photo file size exceeds 1MB limit.");
-
-        if (aadhaarFile.getSize() > 1 * 1024 * 1024)
-            bindingResult.rejectValue("aadhaarFileName", "error.student", "Aadhaar file size exceeds 1MB limit.");
-
-        if (panFile.getSize() > 1 * 1024 * 1024)
-            bindingResult.rejectValue("panFileName", "error.student", "PAN file size exceeds 1MB limit.");
-
-        if (student.getDateOfBirth() == null)
-            bindingResult.rejectValue("dateOfBirth", "error.student", "Please enter a valid date of birth.");
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("genders", List.of("Male", "Female", "Other"));
-            model.addAttribute("hobbiesList", List.of("Reading", "Sports", "Music", "Traveling", "Other"));
-            model.addAttribute("states", locationService.getAllStates());
-            return "create_student";
-        }
-
-        studentService.registerStudent(student, hobbies, multipartFile, aadhaarFile, panFile);
+        studentService.registerStudent(student, hobbies, photo, aadhaarFile, panFile);
         return "redirect:/students";
     }
 
+    // update student form method
     @GetMapping("/students/edit/{id}")
     public String editStudentForm(@PathVariable Long id, Model model) {
         Student student = studentService.getStudentById(id);
         model.addAttribute("student", student);
-        model.addAttribute("genders", List.of("Male", "Female", "Other"));
-        model.addAttribute("hobbiesList", List.of("Reading", "Sports", "Music", "Traveling", "Other"));
-        model.addAttribute("states", locationService.getAllStates());
+        populateFormModel(model);
         model.addAttribute("selectedHobbies", student.getHobbies() != null ? student.getHobbies().split(",") : new String[0]);
 
         if (student.getCity() != null && student.getCity().getState() != null) {
@@ -102,15 +115,30 @@ public class StudentController {
     @PostMapping("/students/{id}")
     public String updateStudent(@PathVariable Long id, @ModelAttribute("student") Student student,
                                 @RequestParam("hobbies") List<String> hobbies,
-                                @RequestParam(value = "image", required = false) MultipartFile multipartFile,
+                                BindingResult bindingResult,
+                                @RequestParam(value = "image", required = false) MultipartFile photo,
                                 @RequestParam(value = "aadhaar", required = false) MultipartFile aadhaarFile,
                                 @RequestParam(value = "pan", required = false) MultipartFile panFile,
                                 Model model) throws IOException {
 
-        studentService.updateStudentWithFiles(id, student, hobbies, multipartFile, aadhaarFile, panFile);
+        studentService.validateStudent(student, photo, aadhaarFile, panFile, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            populateFormModel(model);
+            model.addAttribute("selectedHobbies", hobbies.toArray(new String[0]));
+
+            if (student.getCity() != null && student.getCity().getState() != null) {
+                model.addAttribute("cities", locationService.getCitiesByStateId(student.getCity().getState().getId()));
+            }
+
+            return "edit_student";
+        }
+
+        studentService.updateStudentWithFiles(id, student, hobbies, photo, aadhaarFile, panFile);
         return "redirect:/students";
     }
 
+    // delete student data
     @DeleteMapping("/students/{id}")
     @ResponseBody
     public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
@@ -118,6 +146,7 @@ public class StudentController {
         return ResponseEntity.ok().build();
     }
 
+    // show student profile
     @GetMapping("/students/{id}/show")
     public String showStudent(@PathVariable Long id, Model model) {
         Student student = studentService.getStudentById(id);
@@ -132,11 +161,54 @@ public class StudentController {
         return locationService.getCitiesByStateId(stateId);
     }
 
+    // searching student
     @GetMapping("/students/search")
     public String searchStudents(@RequestParam("keyword") String keyword, Model model) {
         List<Student> students = studentService.searchStudents(keyword);
         model.addAttribute("students", students);
         return "students";
     }
+
+    @GetMapping("/search-students")
+    @ResponseBody
+    public List<Student> searchStudents(@RequestParam("keyword") String keyword) {
+//        Pageable limit = PageRequest.of(0, 10);
+        return studentRepository.searchStudentsByKeyword(keyword);
+    }
+
+    @GetMapping("/students/fast-search")
+    @ResponseBody
+    public List<Student> fastSearch(@RequestParam("keyword") String keyword) {
+        return studentRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword, keyword);
+    }
+
+    @GetMapping("/students/all")
+    @ResponseBody
+    public List<Student> getAllStudents() {
+        return studentService.getAllStudents(); // ensure this returns all student data including nested city/state
+    }
+
+    @GetMapping("/students/paged")
+    public String getPagedStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        if (page < 0) page = 0;
+        if (size <= 0) size = 5;
+
+        Page<Student> studentPage = studentService.getPaginatedStudents(page, size);
+
+        model.addAttribute("studentPage", studentPage); // the whole Page object for detailed info
+        model.addAttribute("students", studentPage.getContent()); // the current page content list
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", studentPage.getTotalPages());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("hasPrev", studentPage.hasPrevious());
+        model.addAttribute("hasNext", studentPage.hasNext());
+
+        return "students";
+    }
+
 }
 

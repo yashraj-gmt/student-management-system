@@ -4,28 +4,21 @@ import com.app.entity.User;
 import com.app.service.EmailService;
 import com.app.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.UUID;
 
 @Controller
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final EmailService emailService;
 
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserController(UserService userService, EmailService emailService) {
+        this.userService = userService;
+        this.emailService = emailService;
+    }
 
     @GetMapping("/home")
     public String homePage() {
@@ -79,7 +72,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();  // optional if using Spring Security logout
+        session.invalidate();
         return "redirect:/login?logout";
     }
 
@@ -99,16 +92,17 @@ public class UserController {
             return "forgot_password";
         }
 
-        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+/*        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
         long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
-
+        long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
         userService.saveOtp(user, otp, expiryTime);
-        emailService.sendOtpEmail(user.getEmail(), otp);
-
+        emailService.sendOtpEmail(user.getEmail(), otp);*/
+        userService.generateAndSendOtp(user);
         model.addAttribute("email", email);
-        model.addAttribute("otpExpiry", expiryTime);
+        model.addAttribute("otpExpiry", user.getOtpExpiry());
         return "verify_otp";
     }
+
     @PostMapping("/save-login-email")
     @ResponseBody
     public void saveLoginEmail(@RequestParam String email, HttpSession session) {
