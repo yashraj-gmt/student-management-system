@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <head>
     <title>User Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -155,7 +159,65 @@
             margin-left: 3px;
         }
 
+       /* @media (max-width: 600px) {
+            .form-container {
+                margin: 30px 20px;
+                padding: 20px;
+            }
+
+            input, textarea, button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .modal-content {
+                margin: 30% auto;
+                width: 90%;
+                padding: 15px;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .modal-buttons button {
+                min-width: unset;
+                width: 100%;
+            }
+
+            .show-password {
+                font-size: 13px;
+            }
+        }*/
+
+        .input-icon-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .input-icon-container input {
+            width: 100%;
+            padding-right: 40px;
+            box-sizing: border-box;
+        }
+
+        .toggle-eye {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+        }
+
+
     </style>
+
 </head>
 <body>
 <div class="form-container">
@@ -182,19 +244,20 @@
         <div class="field-error" id="email-error"></div>
 
         <label>Password<span class="required-star">*</span>:</label>
-        <input type="password" id="password" th:field="*{password}" placeholder="Enter password"/>
+        <div class="input-icon-container">
+            <input type="password" id="password" th:field="*{password}" placeholder="Enter password" />
+            <i class="fa-solid fa-eye toggle-eye" id="togglePassword"></i>
+        </div>
         <div class="field-error" id="password-error"></div>
 
         <label>Confirm Password<span class="required-star">*</span>:</label>
-        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Confirm password"/>
+        <div class="input-icon-container">
+            <input type="password" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Confirm password"/>
+            <i class="fa-solid fa-eye toggle-eye" id="toggleConfirmPassword"></i>
+        </div>
         <div class="field-error" id="confirmPassword-error"></div>
 
-        <div class="show-password">
-            <label>
-                <input type="checkbox" id="showPassword" onclick="togglePasswords()"/>
-                <h4>Show_Password</h4>
-            </label>
-        </div>
+
 
         <button type="submit">Register</button>
     </form>
@@ -217,32 +280,65 @@
 </div>
 
 <script>
-    function togglePasswords() {
-        const pw = document.getElementById("password");
-        const cpw = document.getElementById("confirmPassword");
-        const type = pw.type === "password" ? "text" : "password";
-        pw.type = type;
-        cpw.type = type;
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const togglePassword = document.getElementById("togglePassword");
+        const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
 
-    function showError(id, message) {
-        document.getElementById(id + '-error').innerText = message;
-    }
+        // Toggle password visibility for password field only
+        togglePassword.addEventListener("click", function () {
+            const type = password.type === "password" ? "text" : "password";
+            password.type = type;
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
+        });
 
-    function clearErrors() {
-        const errors = document.querySelectorAll('.field-error');
-        errors.forEach(e => e.innerText = '');
-    }
+        // Toggle password visibility for confirm password field only
+        toggleConfirmPassword.addEventListener("click", function () {
+            const type = confirmPassword.type === "password" ? "text" : "password";
+            confirmPassword.type = type;
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
+        });
 
-    document.addEventListener('DOMContentLoaded', function () {
+        // Set max date for DOB input
         const dobInput = document.getElementById('dateOfBirth');
         if (dobInput) {
             const today = new Date().toISOString().split('T')[0];
             dobInput.setAttribute('max', today);
         }
+
+        setupLiveValidation(); // real-time validation setup
+
+        // Modal buttons event listeners
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+        if (modalConfirmBtn && modalCancelBtn) {
+            modalConfirmBtn.addEventListener('click', function () {
+                document.getElementById('confirmModal').style.display = 'none';
+                document.getElementById('registrationForm').submit();
+            });
+
+            modalCancelBtn.addEventListener('click', function () {
+                document.getElementById('confirmModal').style.display = 'none';
+            });
+        }
     });
 
-    // Your existing validateForm function
+    // Show error message in span/div with id `${field}-error`
+    function showError(id, message) {
+        document.getElementById(id + '-error').innerText = message;
+    }
+
+    // Clear all errors
+    function clearErrors() {
+        const errors = document.querySelectorAll('.field-error');
+        errors.forEach(e => e.innerText = '');
+    }
+
+    // Validate the form fields
     function validateForm() {
         clearErrors();
         let valid = true;
@@ -290,18 +386,16 @@
         return valid;
     }
 
-    // Intercept form submission to show modal on valid form
+    // Form submit interceptor to show modal
     function onSubmit(event) {
-        event.preventDefault(); // Stop form from submitting right away
+        event.preventDefault();
         if (validateForm()) {
-            // Show confirmation modal
             document.getElementById('confirmModal').style.display = 'block';
         }
-        // If invalid, errors are shown by validateForm, and form is not submitted
         return false;
     }
 
-    // Add this function to set up listeners on each field
+    // Setup live validation (clear error on input)
     function setupLiveValidation() {
         const fields = ["fullName", "dateOfBirth", "address", "email", "password", "confirmPassword"];
         fields.forEach(id => {
@@ -314,37 +408,14 @@
         });
     }
 
-    // Call the function after the DOM is ready
-    document.addEventListener("DOMContentLoaded", function () {
-        const dobInput = document.getElementById('dateOfBirth');
-        if (dobInput) {
-            const today = new Date().toISOString().split('T')[0];
-            dobInput.setAttribute('max', today);
-        }
-        setupLiveValidation(); // ✅ Set up real-time error clearing
-    });
-
-
-    // Modal buttons
-    document.getElementById('modalConfirmBtn').addEventListener('click', function () {
-        // Submit form after confirmation
-        document.getElementById('confirmModal').style.display = 'none';
-        document.getElementById('registrationForm').submit();
-    });
-
-    document.getElementById('modalCancelBtn').addEventListener('click', function () {
-        // Close modal without submitting
-        document.getElementById('confirmModal').style.display = 'none';
-    });
-
-    // Close modal if user clicks outside modal content
+    // Close modal if clicking outside content
     window.onclick = function (event) {
         const modal = document.getElementById('confirmModal');
         if (event.target === modal) {
             modal.style.display = "none";
         }
     };
-</script>
 
+</script>
 </body>
 </html>

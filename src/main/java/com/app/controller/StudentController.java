@@ -6,6 +6,8 @@ import java.util.List;
 import com.app.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,23 +53,64 @@ public class StudentController {
         model.addAttribute("states", locationService.getAllStates());
     }
 
-    // method for listing all students
-//    @GetMapping("/students")
-//    public String listStudents(Model model) {
-//        model.addAttribute("students", studentService.getAllStudents());
-//        return "students";
-//    }
-
     @GetMapping("/students")
     public String listStudents(@RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "5") int size,
+                               @RequestParam(required = false) String keyword,
                                Model model) {
-        Page<Student> studentPage = studentService.getPaginatedStudents(page, size);
+
+        Page<Student> studentPage;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            studentPage = studentService.searchStudents(keyword, page, size);
+            model.addAttribute("keyword", keyword);
+        } else {
+            studentPage = studentService.getPaginatedStudents(page, size);
+        }
+
         model.addAttribute("studentPage", studentPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", studentPage.getTotalPages());
-        return "students";
+        model.addAttribute("pageSize", size);
+        model.addAttribute("students", studentPage.getContent());
+
+        return "students"; // Thymeleaf template
     }
+
+
+
+    // For AJAX-based search (partial refresh)
+/*    @GetMapping("/students/search")
+    public String searchStudentsAjax(
+            @RequestParam(name = "search", required = false, defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        if (keyword == null) keyword = ""; // optional, to avoid null in service
+
+        Page<Student> studentPage = studentService.searchStudents(keyword, page, size);
+        model.addAttribute("studentPage", studentPage);
+        model.addAttribute("currentPage", page);
+        return "fragments/student-table :: tableBody";
+    }*/
+
+    @GetMapping("/students/search")
+    public String searchStudents(
+            @RequestParam("search") String keyword,
+            @RequestParam("page") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Student> studentPage = studentService.search(keyword, pageable);
+        model.addAttribute("studentPage", studentPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("totalPages", studentPage.getTotalPages());
+        return "fragments/student_table :: tableBody";  // return Thymeleaf fragment
+    }
+
 
     // method for adding new student
     @GetMapping("/students/new")
@@ -160,27 +203,21 @@ public class StudentController {
     public List<City> getCitiesByState(@RequestParam Long stateId) {
         return locationService.getCitiesByStateId(stateId);
     }
-
     // searching student
-    @GetMapping("/students/search")
+
+/*    @GetMapping("/students/search")
     public String searchStudents(@RequestParam("keyword") String keyword, Model model) {
         List<Student> students = studentService.searchStudents(keyword);
         model.addAttribute("students", students);
         return "students";
-    }
+    }*/
 
-    @GetMapping("/search-students")
-    @ResponseBody
-    public List<Student> searchStudents(@RequestParam("keyword") String keyword) {
-//        Pageable limit = PageRequest.of(0, 10);
-        return studentRepository.searchStudentsByKeyword(keyword);
-    }
-
-    @GetMapping("/students/fast-search")
-    @ResponseBody
-    public List<Student> fastSearch(@RequestParam("keyword") String keyword) {
-        return studentRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword, keyword);
-    }
+//    @GetMapping("/search-students")
+//    @ResponseBody
+//    public List<Student> searchStudents(@RequestParam("keyword") String keyword) {
+////        Pageable limit = PageRequest.of(0, 10);
+//        return studentRepository.searchStudentsByKeyword(keyword);
+//    }
 
     @GetMapping("/students/all")
     @ResponseBody

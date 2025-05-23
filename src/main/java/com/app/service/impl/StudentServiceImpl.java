@@ -48,10 +48,7 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.deleteById(id);
     }
 
-    @Override
-    public List<Student> searchStudents(String keyword) {
-        return studentRepository.findByKeyword(keyword);
-    }
+
 
     @Override
     public Student registerStudent(Student student, List<String> hobbies, MultipartFile photo, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException {
@@ -168,6 +165,26 @@ public class StudentServiceImpl implements StudentService {
         Pageable pageable = PageRequest.of(page, size);
         return studentRepository.findAll(pageable);
     }
+
+    @Override
+    public Page<Student> searchStudents(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return studentRepository.findAll(pageable);
+        }
+        return studentRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword, keyword, pageable);
+    }
+
+    @Override
+    public Page<Student> search(String keyword, Pageable pageable) {
+        if (keyword == null || keyword.isEmpty()) {
+            return studentRepository.findAll(pageable);
+        } else {
+            return studentRepository.findByFirstNameContainingIgnoreCase(keyword, pageable);
+        }
+    }
+
+
 
 
 }

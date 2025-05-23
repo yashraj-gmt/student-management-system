@@ -86,7 +86,7 @@
 
                         <!-- Submit Button -->
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">
+                            <button type="submit" class="btn btn-success btn-lg " id="assignBtn" disabled>
                                 Assign Selected Subjects
                             </button>
                         </div>
@@ -185,16 +185,18 @@
             errorDiv.classList.remove("d-none");
             errorDiv.textContent = "Please select at least 3 subjects.";
             enableDragging(); // Allow dragging
+            assignBtn.disabled = true;
             return false;
         } else if (selectedCount > 5) {
             errorDiv.classList.remove("d-none");
             errorDiv.textContent = "Please select up to 5 subjects only.";
             disableDragging(); // Prevent over-selection
+            assignBtn.disabled = true;
             return false;
         }
 
         errorDiv.classList.add("d-none");
-
+        assignBtn.disabled = false;
         // Manage drag based on count
         if (selectedCount >= 5) {
             disableDragging();
@@ -271,108 +273,19 @@
             onSort: validateSelection
         });
     });
+
+    // disable right-click
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    /// disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+    document.onkeydown = function (e) {
+        if (e.key === "F12" ||
+            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+            (e.ctrlKey && e.key === "u")) {
+            alert("This action is disabled");
+            return false;
+        }
+    };
 </script>
-
-<!--
-<script>
-	const availableBox = document.getElementById("availableSubjects");
-	const selectedBox = document.getElementById("selectedSubjects");
-	const hiddenInputs = document.getElementById("hiddenInputs");
-	const errorDiv = document.getElementById("subjectError");
-	const studentSelect = document.getElementById("studentSelect");
-
-	const renderSubjects = (subjects) => {
-		availableBox.innerHTML = "";
-		subjects.forEach(subject => {
-			const div = document.createElement("div");
-			div.className = "subject-item";
-			div.dataset.id = subject.id;
-			div.textContent = subject.name;
-			availableBox.appendChild(div);
-		});
-	};
-
-	const updateHiddenInputs = () => {
-		hiddenInputs.innerHTML = "";
-		const selected = selectedBox.querySelectorAll('.subject-item');
-		selected.forEach(item => {
-			const input = document.createElement("input");
-			input.type = "hidden";
-			input.name = "subjectIds";
-			input.value = item.dataset.id;
-			hiddenInputs.appendChild(input);
-		});
-	};
-
-	const validateSelection = () => {
-		const selectedCount = selectedBox.querySelectorAll(".subject-item").length;
-		if (selectedCount < 3) {
-			errorDiv.classList.remove("d-none");
-			errorDiv.textContent = "Please select at least 3 subjects.";
-			return false;
-		} else if (selectedCount > 5) {
-			errorDiv.classList.remove("d-none");
-			errorDiv.textContent = "Please select up to 5 subjects only.";
-			return false;
-		}
-		errorDiv.classList.add("d-none");
-		return true;
-	};
-
-	document.getElementById("assignForm").addEventListener("submit", function (e) {
-		e.preventDefault();
-		if (validateSelection()) {
-			new bootstrap.Modal(document.getElementById('confirmModal')).show();
-		}
-	});
-
-	document.getElementById("confirmAssignBtn").addEventListener("click", function () {
-		updateHiddenInputs();
-		document.getElementById("assignForm").submit();
-	});
-
-	studentSelect.addEventListener("change", function () {
-		const studentId = this.value;
-		renderSubjects(subjectsList);
-		selectedBox.innerHTML = "";
-
-		if (studentId && studentSubjectsMap[studentId]) {
-			const selectedIds = studentSubjectsMap[studentId];
-			selectedIds.forEach(id => {
-				const el = availableBox.querySelector(`[data-id="${id}"]`);
-				if (el) selectedBox.appendChild(el);
-			});
-		}
-	});
-
-	document.addEventListener("DOMContentLoaded", function () {
-		// Render initial subjects
-		renderSubjects(subjectsList);
-
-		// Alert fade out
-		const successAlert = document.getElementById("successAlert");
-		if (successAlert) {
-			setTimeout(() => {
-				successAlert.classList.add("fade");
-				successAlert.style.opacity = '0';
-				setTimeout(() => successAlert.style.display = 'none', 500);
-			}, 3000);
-		}
-
-		// Enable drag-and-drop
-		new Sortable(availableBox, {
-			group: 'shared',
-			animation: 150
-		});
-		new Sortable(selectedBox, {
-			group: 'shared',
-			animation: 150,
-			onAdd: validateSelection,
-			onSort: validateSelection
-		});
-	});
-</script>
--->
-
 </body>
 </html>

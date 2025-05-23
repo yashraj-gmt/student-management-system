@@ -1,16 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh; /* Full screen height */
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
+
     .form-container {
+      width: 100%;
       max-width: 400px;
-      margin: 80px auto;
       padding: 30px;
       background-color: white;
       border-radius: 8px;
@@ -19,12 +33,16 @@
     }
 
     .logo {
-      width: 120px;
+      display: block;
+      margin: 0 auto 20px auto;
+      width: 100px;
+      max-width: 100%;
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
     }
 
     label {
@@ -36,16 +54,15 @@
 
     input[type="email"],
     input[type="password"],
-    input[type="text"]#password{
-      width: 90%;
+    input[type="text"]#password {
+      width: 100%;
       padding: 12px 14px;
       margin-bottom: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 15px;
       background-color: #fafafa;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-      transition: border-color 0.3s, box-shadow 0.3s;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     input:focus {
@@ -54,27 +71,35 @@
       box-shadow: 0 0 6px rgba(74, 144, 226, 0.4);
     }
 
-    .error {
-      color: red;
+    .error, .success {
       text-align: center;
       margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
     }
 
     .field-error {
       color: red;
       font-size: 13px;
       margin: 2px 0 10px 2px;
-      display: block;
       text-align: left;
+      display: block;
     }
 
     button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background-color: #34a853;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 15px;
       cursor: pointer;
     }
@@ -85,73 +110,75 @@
 
     .footer-link {
       text-align: center;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     .footer-link a {
       display: block;
-      margin-top: 5px;
+      margin-top: 6px;
+      font-size: 14px;
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
     }
 
     .show-password {
       display: flex;
       align-items: center;
-      gap: 6px; /* Optional spacing between checkbox and label */
-      text-align: left;
+      gap: 6px;
       margin: 10px 0;
+      font-size: 14px;
     }
 
+    /* Media Query for Mobile Responsiveness */
+    @media (max-width: 480px) {
+      .form-container {
+        padding: 20px 15px;
+        margin: 40px 10px;
+      }
 
-    .success {
-      color: green;
-      font-size: 14px;
-      margin-top: 10px;
-      text-align: center;
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      button {
+        font-size: 14px;
+      }
     }
 
   </style>
 </head>
 <body>
 <div class="form-container">
-  <!-- Logo image -->
   <img th:src="@{/image/gm_technosys.png}" alt="Logo" class="logo" />
 
   <h2>User Login</h2>
 
-  <!-- Error messages -->
+  <!-- Feedback messages -->
   <div th:if="${param.error == 'wrong-password'}" class="error">Incorrect password. Try again.</div>
   <div th:if="${param.error == 'user-not-found'}" class="error">Email not registered.</div>
   <div th:if="${param.error == 'unknown'}" class="error">Login failed due to unknown error.</div>
   <div th:if="${error}" class="error" th:text="${error}"></div>
+  <div th:if="${param.logout}" class="success">You have been logged out.</div>
+  <div th:if="${param.success}" class="success">Registration successful! Please log in.</div>
+  <div th:if="${message}" class="success" th:text="${message}"></div>
 
-  <div th:if="${param.logout}" class="error" style="color: green;">You have been logged out.</div>
-  <div th:if="${param.success}" class="error" style="color: green;">Registration successful! Please log in.</div>
-  <!-- Show success message after redirect -->
-  <div th:if="${message}" class="success">
-    <p th:text="${message}"></p>
-  </div>
-
-  <!-- Login form -->
   <form th:action="@{/login}" method="post" onsubmit="return validateLogin()" novalidate>
-
     <label>Email:</label>
-<!--    <input type="email" name="email" id="loginEmail" required-->
-<!--           placeholder="Enter your email" th:value="${email}" />-->
-<!--    <span id="emailError" class="error" style="display: none;">Please enter a valid email.</span>-->
     <input type="email" name="email" id="loginEmail" required placeholder="Enter your email" th:value="${email}" />
     <span id="emailError" class="field-error" style="display: none;"></span>
 
     <label>Password:</label>
     <input type="password" name="password" id="password" required placeholder="Enter your password" />
     <span id="passwordError" class="field-error" style="display: none;"></span>
-<!--    <input type="password" name="password" id="password" required placeholder="Enter your password" />-->
-<!--    <span id="passwordError" class="error" style="display: none;">Password is required.</span>-->
 
     <div class="show-password">
-      <input type="checkbox" id="showPassword" />
-      <label for="showPassword">Show Password</label>
+      <input  type="checkbox"  id="showPassword" />
+        <label for="showPassword">Show Password</label>
     </div>
-
 
     <button type="submit">Login</button>
     <input type="hidden" name="loginAttempted" id="loginAttempted" value="false" />
@@ -167,17 +194,13 @@
   function validateLogin() {
     let email = document.getElementById("loginEmail").value.trim();
     let password = document.getElementById("password").value.trim();
-
     let emailError = document.getElementById("emailError");
     let passwordError = document.getElementById("passwordError");
 
     let valid = true;
-
-    // Reset error display
     emailError.textContent = "";
     passwordError.textContent = "";
 
-    // Email validation
     if (!email) {
       emailError.textContent = "Email is required.";
       emailError.style.display = "block";
@@ -188,14 +211,12 @@
       valid = false;
     }
 
-    // Password validation
     if (!password) {
       passwordError.textContent = "Password is required.";
       passwordError.style.display = "block";
       valid = false;
     }
 
-    // Save email
     if (valid) {
       sessionStorage.setItem("emailForRecovery", email);
       document.getElementById("loginAttempted").value = "true";
@@ -209,7 +230,6 @@
     return valid;
   }
 
-
   function redirectToForgotPassword() {
     const email = document.getElementById("loginEmail").value;
     if (email) {
@@ -219,7 +239,6 @@
     }
   }
 
-  // Toggle password visibility
   document.addEventListener('DOMContentLoaded', function () {
     const showPasswordCheckbox = document.getElementById('showPassword');
     const passwordField = document.getElementById('password');

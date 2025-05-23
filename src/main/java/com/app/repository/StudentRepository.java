@@ -1,32 +1,37 @@
 package com.app.repository;
 
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-
+import com.app.entity.Student;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import com.app.entity.Student;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface StudentRepository extends JpaRepository<Student, Long>{
+public interface StudentRepository extends JpaRepository<Student, Long> {
 
-	@Query("Select s from Student s where " +
-		       "LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-		       "LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-		       "LOWER(s.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-		List<Student> findByKeyword(@Param("keyword") String keyword);
-
-	@Query("SELECT s FROM Student s WHERE s.firstName LIKE %:keyword%")
+	// Simple list search by keyword (firstName, lastName, email)
+	@Query("SELECT s FROM Student s WHERE " +
+			"LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+			"LOWER(s.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
 	List<Student> searchStudentsByKeyword(@Param("keyword") String keyword);
 
+	// Paging search by firstName, lastName, or email (case-insensitive)
+	Page<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+			String firstName, String lastName, String email, Pageable pageable);
 
-	List<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String firstName, String lastName, String email);
+	// Paging search by keyword using custom query (single param)
+	@Query("SELECT s FROM Student s WHERE " +
+			"LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+			"LOWER(s.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+	Page<Student> searchByKeywordWithPaging(@Param("keyword") String keyword, Pageable pageable);
 
-	Page<Student> findAll(Pageable pageable);
+	Page<Student> findByFirstNameContainingIgnoreCase(String firstName, Pageable pageable);
+
 
 }
