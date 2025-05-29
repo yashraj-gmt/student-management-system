@@ -1,3 +1,4 @@
+/*
 package com.app.service;
 
 import com.app.entity.Student;
@@ -14,3 +15,4 @@ public interface StudentSubjectService {
 
     public List<Subject> getAllSubjects();
 }
+*/

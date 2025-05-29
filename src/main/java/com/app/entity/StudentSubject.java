@@ -1,25 +1,28 @@
 package com.app.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Table(name = "student_subjects")
-@Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
+@Table(name = "student_subject")
+@IdClass(StudentSubjectId.class)  // Composite PK class
 public class StudentSubject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
+    @JoinColumn(name = "student_id")
     private Student student;
 
+    @Id
     @ManyToOne
-    @JoinColumn(name = "subject_id", nullable = false)
+    @JoinColumn(name = "subject_id")
     private Subject subject;
+
+    // other fields if needed
+
+    // getters and setters
 }
+

@@ -1,3 +1,4 @@
+/*
 package com.app.security;
 
 import jakarta.servlet.ServletException;
@@ -38,3 +39,4 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         response.sendRedirect("/login?error=" + errorParam + "&email=" + email);
     }
 }
+*/

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login</title>
+
   <style>
+    /* Your existing CSS unchanged */
     * {
       box-sizing: border-box;
     }
@@ -15,12 +17,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh; /* Full screen height */
+      min-height: 100vh;
       margin: 0;
       padding: 20px;
       box-sizing: border-box;
     }
-
 
     .form-container {
       width: 100%;
@@ -35,7 +36,7 @@
     .logo {
       display: block;
       margin: 0 auto 20px auto;
-      width: 100px;
+      width: 120px;
       max-width: 100%;
     }
 
@@ -52,9 +53,8 @@
       text-align: left;
     }
 
-    input[type="email"],
-    input[type="password"],
-    input[type="text"]#password {
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
       padding: 12px 14px;
       margin-bottom: 10px;
@@ -71,7 +71,8 @@
       box-shadow: 0 0 6px rgba(74, 144, 226, 0.4);
     }
 
-    .error, .success {
+    .error,
+    .success {
       text-align: center;
       margin-bottom: 10px;
       font-size: 14px;
@@ -133,7 +134,6 @@
       font-size: 14px;
     }
 
-    /* Media Query for Mobile Responsiveness */
     @media (max-width: 480px) {
       .form-container {
         padding: 20px 15px;
@@ -148,18 +148,17 @@
         font-size: 14px;
       }
     }
-
   </style>
 </head>
 <body>
 <div class="form-container">
   <img th:src="@{/image/gm_technosys.png}" alt="Logo" class="logo" />
 
-  <h2>User Login</h2>
+  <h2>Student Login</h2>
 
   <!-- Feedback messages -->
   <div th:if="${param.error == 'wrong-password'}" class="error">Incorrect password. Try again.</div>
-  <div th:if="${param.error == 'user-not-found'}" class="error">Email not registered.</div>
+  <div th:if="${param.error == 'user-not-found'}" class="error">Email or Mobile number not registered.</div>
   <div th:if="${param.error == 'unknown'}" class="error">Login failed due to unknown error.</div>
   <div th:if="${error}" class="error" th:text="${error}"></div>
   <div th:if="${param.logout}" class="success">You have been logged out.</div>
@@ -167,17 +166,25 @@
   <div th:if="${message}" class="success" th:text="${message}"></div>
 
   <form th:action="@{/login}" method="post" onsubmit="return validateLogin()" novalidate>
-    <label>Email:</label>
-    <input type="email" name="email" id="loginEmail" required placeholder="Enter your email" th:value="${email}" />
-    <span id="emailError" class="field-error" style="display: none;"></span>
+    <label>Email or Mobile Number:</label>
+    <input
+            type="text"
+            name="loginId"
+            id="loginId"
+            required
+            placeholder="Enter your email or 10-digit mobile number"
+            th:value="${loginId}"
+            autocomplete="username"
+    />
+    <span id="loginIdError" class="field-error" style="display: none;"></span>
 
     <label>Password:</label>
-    <input type="password" name="password" id="password" required placeholder="Enter your password" />
+    <input type="password" name="password" id="password" required placeholder="Enter your password" autocomplete="current-password" />
     <span id="passwordError" class="field-error" style="display: none;"></span>
 
     <div class="show-password">
-      <input  type="checkbox"  id="showPassword" />
-        <label for="showPassword">Show Password</label>
+      <input type="checkbox" id="showPassword" />
+      <label for="showPassword">Show Password</label>
     </div>
 
     <button type="submit">Login</button>
@@ -191,50 +198,79 @@
 </div>
 
 <script>
+  function log(message, level = 'info') {
+    const time = new Date().toISOString();
+    if (level === 'error') {
+      console.error(`[${time}] ERROR: ${message}`);
+    } else if (level === 'warn') {
+      console.warn(`[${time}] WARN: ${message}`);
+    } else {
+      console.log(`[${time}] INFO: ${message}`);
+    }
+  }
+
   function validateLogin() {
-    let email = document.getElementById("loginEmail").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let emailError = document.getElementById("emailError");
-    let passwordError = document.getElementById("passwordError");
+    const loginId = document.getElementById('loginId').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const loginIdError = document.getElementById('loginIdError');
+    const passwordError = document.getElementById('passwordError');
+
+    loginIdError.textContent = '';
+    loginIdError.style.display = 'none';
+    passwordError.textContent = '';
+    passwordError.style.display = 'none';
 
     let valid = true;
-    emailError.textContent = "";
-    passwordError.textContent = "";
 
-    if (!email) {
-      emailError.textContent = "Email is required.";
-      emailError.style.display = "block";
+    // Regex for email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Regex for 10-digit mobile number (only digits)
+    const mobilePattern = /^\d{10}$/;
+
+    if (!loginId) {
+      loginIdError.textContent = 'Email or mobile number is required.';
+      loginIdError.style.display = 'block';
+      log('Login ID is empty.', 'warn');
       valid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      emailError.textContent = "Please enter a valid email.";
-      emailError.style.display = "block";
+    } else if (!emailPattern.test(loginId) && !mobilePattern.test(loginId)) {
+      loginIdError.textContent = 'Enter a valid email or 10-digit mobile number.';
+      loginIdError.style.display = 'block';
+      log('Invalid login ID format.', 'warn');
       valid = false;
     }
 
     if (!password) {
-      passwordError.textContent = "Password is required.";
-      passwordError.style.display = "block";
+      passwordError.textContent = 'Password is required.';
+      passwordError.style.display = 'block';
+      log('Password is empty.', 'warn');
       valid = false;
     }
 
     if (valid) {
-      sessionStorage.setItem("emailForRecovery", email);
-      document.getElementById("loginAttempted").value = "true";
-      fetch('/save-login-email', {
+      sessionStorage.setItem('loginIdForRecovery', loginId);
+      document.getElementById('loginAttempted').value = 'true';
+
+      log(`Login attempt for: ${loginId}`, 'info');
+
+      fetch('/save-login-id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'email=' + encodeURIComponent(email)
-      });
+        body: 'loginId=' + encodeURIComponent(loginId),
+      })
+              .then(() => log('Login ID saved successfully.'))
+              .catch((err) => log('Failed to save login ID: ' + err.message, 'error'));
     }
 
     return valid;
   }
 
   function redirectToForgotPassword() {
-    const email = document.getElementById("loginEmail").value;
-    if (email) {
-      window.location.href = `/forgot-password?email=${encodeURIComponent(email)}`;
+    const loginId = document.getElementById('loginId').value.trim();
+    if (loginId) {
+      log(`Redirecting to forgot password with login ID: ${loginId}`);
+      window.location.href = `/forgot-password?loginId=${encodeURIComponent(loginId)}`;
     } else {
+      log('Redirecting to forgot password without login ID');
       window.location.href = '/forgot-password';
     }
   }
@@ -245,6 +281,7 @@
 
     showPasswordCheckbox.addEventListener('change', function () {
       passwordField.type = this.checked ? 'text' : 'password';
+      log(`Show password toggled: ${this.checked}`);
     });
   });
 </script>

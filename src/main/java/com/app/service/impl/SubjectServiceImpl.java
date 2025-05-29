@@ -1,3 +1,4 @@
+/*
 package com.app.service.impl;
 
 import java.util.List;
@@ -37,3 +38,4 @@ public class SubjectServiceImpl implements SubjectService {
         subjectRepository.deleteById(id);
     }
 }
+*/

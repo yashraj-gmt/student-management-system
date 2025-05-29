@@ -1,3 +1,4 @@
+/*
 package com.app.controller;
 
 import com.app.entity.Student;
@@ -63,3 +64,4 @@ public class StudentSubjectController {
         return "student_subject_list";
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package com.app.service;
 
 import com.app.entity.Subject;
@@ -14,3 +15,4 @@ public interface SubjectService {
     void deleteSubjectById(Long id);
 }
 
+*/

@@ -7,5 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class StudentManagementSystemApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(StudentManagementSystemApplication.class, args);
+
+
+//		String hashed = hashPassword("Admin@123");
+//		System.out.println("Hashedddddddddd:  "+hashed);
 	}
+
 }

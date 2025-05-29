@@ -1,3 +1,4 @@
+/*
 package com.app.controller;
 
 import com.app.entity.Subject;
@@ -48,3 +49,4 @@ public class SubjectController {
     }
 
 }
+*/

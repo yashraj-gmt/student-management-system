@@ -16,19 +16,17 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 	// Simple list search by keyword (firstName, lastName, email)
 	@Query("SELECT s FROM Student s WHERE " +
 			"LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-			"LOWER(s.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
 	List<Student> searchStudentsByKeyword(@Param("keyword") String keyword);
 
 	// Paging search by firstName, lastName, or email (case-insensitive)
-	Page<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-			String firstName, String lastName, String email, Pageable pageable);
+	Page<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+			String firstName, String lastName, Pageable pageable);
 
 	// Paging search by keyword using custom query (single param)
 	@Query("SELECT s FROM Student s WHERE " +
 			"LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-			"LOWER(s.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
 	Page<Student> searchByKeywordWithPaging(@Param("keyword") String keyword, Pageable pageable);
 
 	Page<Student> findByFirstNameContainingIgnoreCase(String firstName, Pageable pageable);

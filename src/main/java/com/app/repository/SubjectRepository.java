@@ -12,6 +12,6 @@ import com.app.entity.Subject;
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
 
-	
+    List<Subject> findByStandardId(Long standardId);
 
 }

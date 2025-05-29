@@ -1,5 +1,6 @@
 package com.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,8 +16,13 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
     private String name;
+
+    // Subject.java
+    @ManyToOne
+    @JoinColumn(name = "standard_id")
+    @JsonBackReference
+    private Standard standard;
 
 }
 

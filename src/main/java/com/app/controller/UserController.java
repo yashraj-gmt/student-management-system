@@ -1,3 +1,4 @@
+/*
 package com.app.controller;
 
 import com.app.entity.User;
@@ -25,6 +26,30 @@ public class UserController {
         return "home";
     }
 
+    @GetMapping("/about")
+    public String aboutPage(Model model) {
+        model.addAttribute("activePage", "about");
+        return "public/about";
+    }
+
+    @GetMapping("/courses")
+    public String coursesPage(Model model) {
+        model.addAttribute("activePage", "courses");
+        return "public/courses";
+    }
+
+    @GetMapping("/contact")
+    public String contactPage(Model model) {
+        model.addAttribute("activePage", "contact");
+        return "public/contact";
+    }
+
+    @GetMapping("/index")
+    public String indexPage(Model model){
+        model.addAttribute("activePage", "index");
+        return "public/index";
+
+    }
 
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
@@ -66,7 +91,7 @@ public class UserController {
                 model.addAttribute("error", "Login failed due to unknown error.");
             }
         }
-        model.addAttribute("email", email); // to prefill email field
+        model.addAttribute("email", email);
         return "login";
     }
 
@@ -92,14 +117,16 @@ public class UserController {
             return "forgot_password";
         }
 
+*/
 /*        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
         long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
         long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
         userService.saveOtp(user, otp, expiryTime);
-        emailService.sendOtpEmail(user.getEmail(), otp);*/
+        emailService.sendOtpEmail(user.getEmail(), otp);*//*
+
         userService.generateAndSendOtp(user);
         model.addAttribute("email", email);
-        model.addAttribute("otpExpiry", user.getOtpExpiry());
+//        model.addAttribute("otpExpiry", user.getOtpExpiry());////updates
         return "verify_otp";
     }
 
@@ -115,6 +142,9 @@ public class UserController {
         return "verify_otp"; // OTP verification page
     }
 
+*/
+/*//*
+///updates
     @PostMapping("/verify-otp")
     public String verifyOtp(@RequestParam String email,
                             @RequestParam String otp,
@@ -148,6 +178,8 @@ public class UserController {
         model.addAttribute("email", email);
         return "reset_password";
     }
+*//*
+
 
     @GetMapping("/reset-password")
     public String resetPasswordForm(@RequestParam String email, Model model) {
@@ -169,4 +201,6 @@ public class UserController {
         userService.updatePassword(user, newPassword); // Update the password
         return "redirect:/login?resetSuccess"; // Redirect to login page with success message
     }
-}
+
+
+}*/

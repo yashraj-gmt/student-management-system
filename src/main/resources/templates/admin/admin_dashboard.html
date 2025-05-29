@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Student Management</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+      background: linear-gradient(155deg, #ffffff 0%, #f0f0f0 63%, #4a82ba 100%);
+    }
+
+    .navbar-brand img {
+      width: 120px;
+    }
+
+    .nav-link {
+      color: #000 !important;
+      font-weight: 500;
+    }
+
+    .nav-link:hover {
+      color: #ffc107 !important;
+    }
+
+    .logout-button {
+      background-color: #dc3545;
+      border: none;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 5px;
+    }
+
+    .logout-button:hover {
+      background-color: #bb2d3b;
+    }
+
+    .dashboard-section {
+      padding: 50px 0;
+    }
+
+    .card {
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .footer {
+      background-color: #343a40;
+      color: white;
+      padding: 30px 0;
+    }
+
+    .footer a {
+      color: #ffc107;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/admin/dashboard">
+      <img th:src="@{/image/gm_technosys.png}" alt="Admin Logo" />
+    </a>
+    <div class="ms-auto">
+      <form th:action="@{/logout}" method="post">
+        <button class="logout-button">Logout</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<!-- Admin Dashboard Cards -->
+<section class="dashboard-section">
+  <div class="container">
+    <h2 class="text-center mb-5">Admin Dashboard</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4 text-center">
+
+      <!-- Manage Students -->
+      <div class="col">
+        <div class="card shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Manage Students</h5>
+            <p class="card-text">View and manage all registered students.</p>
+            <a href="/admin/students/stuManage" class="btn btn-primary">Manage Students</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Histories -->
+      <div class="col">
+        <div class="card shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Payment Histories</h5>
+            <p class="card-text">View all student payment records.</p>
+            <a href="#" class="btn btn-success">Payment History</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div class="col">
+        <div class="card shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Reports</h5>
+            <p class="card-text">Generate and download various reports.</p>
+            <a href="#" class="btn btn-warning">View Reports</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Events -->
+      <div class="col">
+        <div class="card shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">Events</h5>
+            <p class="card-text">Manage upcoming and past events.</p>
+            <a href="#" class="btn btn-info">Manage Events</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Chart Section Without Card -->
+<section class="dashboard-section">
+  <div class="container">
+    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700;">Student Statistics</h2>
+
+    <div style="max-width: 900px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
+      <canvas id="studentChart" style="width: 100%; height: 500px;"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer mt-5 py-4" style="background: linear-gradient(to right, #343a40, #212529); color: #fff;">
+  <div class="container text-center">
+    <p class="mb-1 fs-5">&copy; 2025 Student Management System Admin Panel</p>
+    <p class="mb-2">
+      <a href="mailto:info@gmtechnosys.com" class="text-warning text-decoration-none">info@gmtechnosys.com</a> |
+      <a href="#" class="text-light text-decoration-none">Privacy Policy</a> |
+      <a href="#" class="text-light text-decoration-none">Terms of Service</a>
+    </p>
+    <hr style="border-color: rgba(255,255,255,0.2); width: 60%; margin: 10px auto;">
+    <p class="mb-0" style="font-size: 0.95rem;">
+      Designed & Developed by <strong class="text-warning"><a href="https://gmtechnosys.com/">G M Technosys</a> </strong>
+    </p>
+  </div>
+</footer>
+
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script>
+
+  const labels = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'];
+  const studentCounts = [50, 75, 60, 90, 40];
+
+  const ctx = document.getElementById('studentChart').getContext('2d');
+
+  const studentChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Number of Students',
+          data: studentCounts,
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 10
+          },
+          title: {
+            display: true,
+            text: 'Students'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Classes'
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Student Count Per Class'
+        },
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+
+</html>

@@ -14,15 +14,11 @@ public interface StudentService {
 
 	Student saveStudent(Student student);
 
-	Student getStudentById(Long id);
-
-	Student updateStudent(Student student);
-
-	void deleteStudentById(Long id);
-
 	Student registerStudent(Student student,
 							List<String> hobbies,
 							MultipartFile photo, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;
+
+	Student getStudentById(Long id);
 
 	Student updateStudentWithFiles(Long id, Student updatedData, List<String> hobbies,
 								   MultipartFile photo, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;

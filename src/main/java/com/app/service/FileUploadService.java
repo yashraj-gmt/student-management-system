@@ -13,7 +13,6 @@ public class FileUploadService {
 	public static String saveFile(String uploadDir, String originalFileName, MultipartFile multipartFile) throws IOException {
 		Path uploadPath = Paths.get(uploadDir);
 
-		// Create directories if they don't exist
 		if (!Files.exists(uploadPath)) {
 			Files.createDirectories(uploadPath);
 		}

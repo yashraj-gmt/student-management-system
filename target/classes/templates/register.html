@@ -159,42 +159,6 @@
             margin-left: 3px;
         }
 
-       /* @media (max-width: 600px) {
-            .form-container {
-                margin: 30px 20px;
-                padding: 20px;
-            }
-
-            input, textarea, button {
-                font-size: 14px;
-                padding: 10px;
-            }
-
-            h2 {
-                font-size: 22px;
-            }
-
-            .modal-content {
-                margin: 30% auto;
-                width: 90%;
-                padding: 15px;
-            }
-
-            .modal-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .modal-buttons button {
-                min-width: unset;
-                width: 100%;
-            }
-
-            .show-password {
-                font-size: 13px;
-            }
-        }*/
-
         .input-icon-container {
             position: relative;
             margin-bottom: 10px;
@@ -215,12 +179,20 @@
             color: #666;
         }
 
+        .logo {
+            display: block;
+            margin: 0 auto 20px auto;
+            width: 120px;
+            max-width: 100%;
+        }
 
     </style>
 
 </head>
 <body>
 <div class="form-container">
+    <img th:src="@{/image/gm_technosys.png}" alt="Logo" class="logo" />
+
     <h2>User Registration</h2>
     <div th:if="${error}" class="error" th:text="${error}"></div>
 

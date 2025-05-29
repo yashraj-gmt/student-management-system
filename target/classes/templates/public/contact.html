@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iLearn High School</title>
+  <meta name="description"
+        content="iLearn High School - Nurturing Excellence in Education">
+  <meta name="keywords" content="school, education, high school, ilearn">
+
+  <!-- Favicons (optional) -->
+  <link th:href="@{/image/favicon.png}" rel="icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@300;400;600&family=Raleway:wght@400;700&display=swap"
+        rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- AOS Animation CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Your Custom CSS -->
+  <link th:href="@{static/main.css}" rel="stylesheet"/>
+
+  <style>
+    .header {
+      background: #fff;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+      padding: 15px 0;
+      z-index: 999;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+      margin-bottom: 0;
+    }
+
+    .navbar a {
+      padding: 8px 16px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    footer.footer a:hover {
+      color: #007bff !important;
+      text-decoration: underline !important;
+    }
+
+    .footer a:hover {
+      color: #007bff;
+      text-decoration: underline;
+    }
+
+
+    /* Responsive Footer */
+    @media (max-width: 768px) {
+      .footer .footer-about,
+      .footer .footer-links {
+        text-align: center;
+      }
+
+      .footer .social-links {
+        justify-content: center;
+      }
+    }
+
+    .logo:hover {
+      color: #0d6efd;
+    }
+
+    .logo-img img {
+      height: 70px;
+      max-height: 100%;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      height: 60px;
+    }
+
+    @media (max-width: 576px) {
+      .logo-img {
+        height: 32px;
+      }
+    }
+  </style>
+
+</head>
+
+<body class="index-page">
+
+<!--header-->
+<header id="header" class="header d-flex align-items-center sticky-top">
+  <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+    <a th:href="@{/index}" class="logo logo-img d-flex align-items-center me-auto">
+      <img th:src="@{/image/logo.png}" alt="Logo">
+      <!--             <h2 class="sitename">iLearn High School</h2>-->
+    </a>
+
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        <li><a th:href="@{/index}"
+               th:classappend="${activePage == 'index'} ? 'active' : ''">Home</a>
+        </li>
+        <li><a th:href="@{/about}"
+               th:classappend="${activePage == 'about'} ? 'active' : ''">About</a>
+        </li>
+        <li class="dropdown"><a th:href="@{/courses}"><span>Cources</span>
+          <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a th:href="@{/courses}">Dropdown 1</a></li>
+            <li class="dropdown"><a th:href="@{/courses}"
+                                    th:classappend="${activePage == 'courses'} ? 'active' : ''"><span>Deep Dropdown</span>
+              <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+              <ul>
+                <li><a th:href="@{/courses}">Deep Dropdown 1</a></li>
+                <li><a th:href="@{/courses}">Deep Dropdown 2</a></li>
+                <li><a th:href="@{/courses}">Deep Dropdown 3</a></li>
+              </ul>
+            </li>
+            <li><a th:href="@{/courses}">Dropdown 2</a></li>
+            <li><a th:href="@{/courses}">Dropdown 3</a></li>
+            <li><a th:href="@{/courses}">Dropdown 4</a></li>
+          </ul>
+        </li>
+        <li><a th:href="@{/contact}"
+               th:classappend="${activePage == 'contact'} ? 'active' : ''">Contact</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+
+    <a class="btn-getstarted login" th:href="@{/login}">Login</a>
+    <a class="btn-getstarted register" th:href="@{/register}">Register</a>
+  </div>
+</header>
+
+
+<main class="main">
+  <!-- Page Title -->
+  <div class="page-title py-5 bg-light border-bottom" data-aos="fade">
+    <div class="container">
+      <div class="row align-items-center text-center text-lg-start">
+        <div class="col-lg-12">
+          <h1 class="display-5 fw-bold text-dark">Contact</h1>
+          <p class="lead text-muted">
+            Get in touch with us. We’re here to help you with any questions, feedback, or collaboration inquiries you may have.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-5 bg-white">
+    <div class="container">
+      <div class="row g-5">
+        <!-- Contact Info -->
+        <div class="col-lg-5">
+          <div class="d-flex flex-column gap-4">
+            <div class="card shadow-sm p-3 border-0" data-aos="fade-up" data-aos-delay="100">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-geo-alt fs-3 text-primary me-3"></i>
+                <div>
+                  <h5 class="mb-1">Address</h5>
+                  <p class="mb-0 text-muted">Satyamev Eminence, Sola, Ahmedabad</p>
+                </div>
+              </div>
+            </div>
+            <div class="card shadow-sm p-3 border-0" data-aos="fade-up" data-aos-delay="200">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-telephone fs-3 text-primary me-3"></i>
+                <div>
+                  <h5 class="mb-1">Call Us</h5>
+                  <p class="mb-0 text-muted">+91 94284 16836</p>
+                </div>
+              </div>
+            </div>
+            <div class="card shadow-sm p-3 border-0" data-aos="fade-up" data-aos-delay="300">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-envelope fs-3 text-primary me-3"></i>
+                <div>
+                  <h5 class="mb-1">Email Us</h5>
+                  <p class="mb-0 text-muted">info@gmtechnosys.com</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="col-lg-7">
+          <div class="card shadow-sm p-4 border-0" data-aos="fade-up" data-aos-delay="400">
+            <h4 class="mb-3">Send Us a Message</h4>
+            <form action="forms/contact.php" method="post" class="php-email-form">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+                </div>
+                <div class="col-md-6">
+                  <input type="email" name="email" class="form-control" placeholder="Your Email" required>
+                </div>
+                <div class="col-md-12">
+                  <input type="text" name="subject" class="form-control" placeholder="Subject" required>
+                </div>
+                <div class="col-md-12">
+                  <textarea name="message" class="form-control" rows="5" placeholder="Message" required></textarea>
+                </div>
+                <div class="col-md-12 text-end">
+                  <div class="loading">Loading</div>
+                  <div class="error-message"></div>
+                  <div class="sent-message">Your message has been sent. Thank you!</div>
+                  <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Map -->
+      <div class="mt-5" data-aos="fade-up" data-aos-delay="500">
+        <iframe style="border:0; width: 100%; height: 300px;"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3670.6852695460084!2d72.51232987509337!3d23.071997429139152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e9cb3de1e7d55%3A0x5f95343dddf69446!2sSATYAMEV%20EMINENCE%2C%20Sola%2C%20Ahmedabad%2C%20Gujarat%20380060!5e0!3m2!1sen!2sin!4v1748327788089!5m2!1sen!2sin"
+                frameborder="0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!--Footer-->
+<footer id="footer" class="footer bg-light border-top pt-5 pb-4">
+  <div class="container">
+    <div class="row gy-4 justify-content-between">
+
+      <!-- School Info -->
+      <div class="col-lg-4 col-md-6">
+        <a href="index.html" class="d-flex align-items-center mb-3 text-dark text-decoration-none">
+          <span class="h5 fw-bold">iLearn High School</span>
+        </a>
+        <p class="mb-1">Satyamev Eminence,<br>Science City Road, Sola, Ahmedabad</p>
+        <p class="mb-1"><strong>Phone:</strong> +91 8989898989</p>
+        <p class="mb-3"><strong>Email:</strong> info@ilearn.edu</p>
+        <div class="d-flex gap-3">
+          <a href="#" class="text-dark fs-5"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-dark fs-5"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="text-dark fs-5"><i class="bi bi-linkedin"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-2 col-md-3">
+        <h6 class="fw-bold mb-3">Quick Links</h6>
+        <ul class="list-unstyled">
+          <li><a href="home" class="text-muted text-decoration-none ">Home</a></li>
+          <li><a href="about" class="text-muted text-decoration-none">About Us</a></li>
+          <li><a href="courses" class="text-muted text-decoration-none">Courses</a></li>
+          <li><a href="contact" class="text-muted text-decoration-none">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-md-3">
+        <h6 class="fw-bold mb-3">Academics</h6>
+        <ul class="list-unstyled">
+          <li><a href="#" class="text-muted text-decoration-none">Subjects</a></li>
+          <li><a href="#" class="text-muted text-decoration-none">Library</a></li>
+          <li><a href="#" class="text-muted text-decoration-none">Faculty</a></li>
+          <li><a href="#" class="text-muted text-decoration-none">Student Portal</a></li>
+          <li><a href="#" class="text-muted text-decoration-none">Events</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <hr class="mt-5">
+
+    <div class="text-center">
+      <p class="mb-0 small text-muted">© 2025 <strong>iLearn High School</strong>. All rights reserved.</p>
+      <p class="mb-0 small text-muted">Designed & Developed by <strong><a href="https://gmtechnosys.com/">G M
+        Technosys</a></strong></p>
+    </div>
+  </div>
+</footer>
+
+<!-- Scroll Top -->
+<a href="#" id="scroll-top"
+   class="scroll-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
+
+<!-- Preloader -->
+<div id="preloader"></div>
+
+<!-- AOS Animation JS -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+<script>AOS.init();</script>
+
+<!-- Main JS File -->
+<script th:src="@{static/main.js}"></script>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+<body>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label class="form-label">Standard</label>
+        <select class="form-select" id="standardDropdown">
+            <option value="">Select Standard</option>
+            <option th:each="std : ${standards}" th:value="${std.id}" th:text="${std.name}"></option>
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Subjects</label>
+        <select multiple class="form-select" name="subjectIds" id="subjectDropdown">
+            <option value="">Select Subject(s)</option>
+        </select>
+    </div>
+</div>
+<script>
+    <script th:inline="javascript">
+        $('#standardDropdown').change(function () {
+        const standardId = $(this).val();
+        if (standardId) {
+        $.get("/admin/students/subjects?standardId=" + standardId, function (data) {
+        const subjectDropdown = $('#subjectDropdown');
+        subjectDropdown.empty();
+        $.each(data, function (index, subject) {
+        subjectDropdown.append('<option value="' + subject.id + '">' + subject.name + '</option>');
+    });
+    });
+    } else {
+        $('#subjectDropdown').empty().append('<option value="">Select Subject(s)</option>');
+    }
+    });
+</script>
+
+</script>
+</body>
+</html>
