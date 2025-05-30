@@ -1,52 +1,95 @@
-/*
 package com.app.controller;
 
+import com.app.entity.Standard;
 import com.app.entity.Subject;
+import com.app.service.StandardService;
 import com.app.service.SubjectService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 @Controller
-@RequestMapping("/subjects")
+@RequestMapping("/admin/subjects")
 public class SubjectController {
 
-    private final SubjectService subjectService;
+    @Autowired
+    private SubjectService subjectService;
 
-    public SubjectController(SubjectService subjectService) {
-        this.subjectService = subjectService;
-    }
+    @Autowired
+    private StandardService standardService;
 
-    // Display all subjects
+    // List all subjects
     @GetMapping
     public String listSubjects(Model model) {
-        List<Subject> subjects = subjectService.getAllSubjects();
-        model.addAttribute("subjects", subjects);
-        return "subject_list";
+        model.addAttribute("subjects", subjectService.getAllSubjects());
+        return "admin/subject_list";
     }
 
-    // Add new subject form
-    @GetMapping("/new")
-    public String showSubjectForm(Model model) {
+    // Show create form
+    @GetMapping("/create")
+    public String showCreateForm(Model model) {
         model.addAttribute("subject", new Subject());
-        return "subject_form";
+        model.addAttribute("standards", standardService.getAllStandards());
+        return "admin/subject_form";
     }
 
     // Save new subject
     @PostMapping("/save")
-    public String saveSubject(@ModelAttribute Subject subject) {
+    public String saveSubject(@ModelAttribute Subject subject, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("standards", standardService.getAllStandards());
+            return "admin/subject_form";
+        }
+
+        if (subject.getStandard() != null && subject.getStandard().getId() != null) {
+            Optional<Standard> std = standardService.getStandardById(subject.getStandard().getId());
+            std.ifPresent(subject::setStandard);
+        } else {
+            subject.setStandard(null);
+        }
+
         subjectService.saveSubject(subject);
-        return "redirect:/subjects";
+        return "redirect:/admin/subjects";
+    }
+
+    // Show edit form
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Optional<Subject> optSubject = subjectService.getSubjectById(id);
+        if (!optSubject.isPresent()) {
+            return "redirect:/admin/subjects";
+        }
+        model.addAttribute("subject", optSubject.get());
+        model.addAttribute("standards", standardService.getAllStandards());
+        return "admin/edit_subject";
+    }
+
+    // Update subject
+    @PostMapping("/update/{id}")
+    public String updateSubject(@PathVariable Long id, @ModelAttribute Subject subject, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("standards", standardService.getAllStandards());
+            return "admin/edit_subject";
+        }
+
+        Optional<Standard> std = standardService.getStandardById(
+                subject.getStandard() != null ? subject.getStandard().getId() : null);
+
+        std.ifPresentOrElse(subject::setStandard, () -> subject.setStandard(null));
+        subject.setId(id);
+        subjectService.updateSubject(subject);
+        return "redirect:/admin/subjects";
     }
 
     // Delete subject
     @GetMapping("/delete/{id}")
     public String deleteSubject(@PathVariable Long id) {
-        subjectService.deleteSubjectById(id);
-        return "redirect:/subjects?deleted=true";
+        subjectService.deleteSubject(id);
+        return "redirect:/admin/subjects";
     }
-
+    
 }
-*/

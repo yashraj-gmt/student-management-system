@@ -24,7 +24,6 @@ public class Standard {
 
     private BigDecimal fees;
 
-
     @OneToMany(mappedBy = "standard", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Subject> subjects;

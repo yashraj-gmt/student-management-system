@@ -1,7 +1,7 @@
-/*
 package com.app.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -24,8 +24,8 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public Subject getSubjectById(Long id) {
-        return subjectRepository.findById(id).orElse(null);
+    public Optional<Subject> getSubjectById(Long id) {
+        return subjectRepository.findById(id);
     }
 
     @Override
@@ -37,5 +37,20 @@ public class SubjectServiceImpl implements SubjectService {
     public void deleteSubjectById(Long id) {
         subjectRepository.deleteById(id);
     }
+
+
+    @Override
+    public List<Subject> getSubjectsByIds(List<Long> ids) {
+        return subjectRepository.findAllById(ids);
+    }
+
+    @Override
+    public Subject updateSubject(Subject subject) {
+        return subjectRepository.save(subject);
+    }
+
+    @Override
+    public void deleteSubject(Long id) {
+        subjectRepository.deleteById(id);
+    }
 }
-*/

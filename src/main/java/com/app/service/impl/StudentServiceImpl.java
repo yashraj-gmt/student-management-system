@@ -2,21 +2,21 @@ package com.app.service.impl;
 
 import com.app.entity.Student;
 import com.app.repository.StudentRepository;
-//import com.app.service.FileUploadService;
 import com.app.service.FileUploadService;
 import com.app.service.StudentService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Year;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class StudentServiceImpl implements StudentService {
+
+    private static final long MAX_FILE_SIZE = 1 * 1024 * 1024;
 
     private final StudentRepository studentRepository;
 
@@ -34,103 +34,83 @@ public class StudentServiceImpl implements StudentService {
         return studentRepository.save(student);
     }
 
-
-
     @Override
     public Student registerStudent(Student student, List<String> hobbies, MultipartFile photo,
                                    MultipartFile aadhaarFile, MultipartFile panFile) throws IOException {
 
-        student.setHobbies(String.join(",", hobbies));
+        // Join hobbies into single comma-separated string
+        if (hobbies != null && !hobbies.isEmpty()) {
+            student.setHobbies(String.join(",", hobbies));
+        }
 
-        // Initially save to get the ID for file paths
+        // Generate enrollment number
+        student.setEnrollmentNumber(generateEnrollmentNumber());
+
+        // Set initial profile status
+        student.setProfileCompleted(false);
+
+        // Save student initially (to generate ID)
         Student savedStudent = studentRepository.save(student);
 
-        // Save Photo
+        // Upload photo
         if (photo != null && !photo.isEmpty()) {
-            String photoFileName = FileUploadService.saveFile("student-photos/" + savedStudent.getId(), photo.getOriginalFilename(), photo);
+            String photoFileName = FileUploadService.saveFile("student-photos/" + savedStudent.getId(),
+                    photo.getOriginalFilename(), photo);
             savedStudent.setPhoto(photoFileName);
         } else {
             savedStudent.setPhoto("user.png");
         }
 
-        // Save Aadhaar File
+        // Upload Aadhaar
         if (aadhaarFile != null && !aadhaarFile.isEmpty()) {
-            String aadhaarFileName = FileUploadService.saveFile("student-documents/" + savedStudent.getId() + "/aadhaar", aadhaarFile.getOriginalFilename(), aadhaarFile);
+            String aadhaarFileName = FileUploadService.saveFile("student-documents/" + savedStudent.getId() + "/aadhaar",
+                    aadhaarFile.getOriginalFilename(), aadhaarFile);
             savedStudent.setAadhaarFileName(aadhaarFileName);
         }
 
-        // Save PAN File
+        // Upload PAN
         if (panFile != null && !panFile.isEmpty()) {
-            String panFileName = FileUploadService.saveFile("student-documents/" + savedStudent.getId() + "/pan", panFile.getOriginalFilename(), panFile);
+            String panFileName = FileUploadService.saveFile("student-documents/" + savedStudent.getId() + "/pan",
+                    panFile.getOriginalFilename(), panFile);
             savedStudent.setPanFileName(panFileName);
         }
 
-        // Set default profile completion status
-        savedStudent.setProfileCompleted(false);
-
+        // Save updated student
         return studentRepository.save(savedStudent);
     }
 
-    @Override
-    public Student updateStudentWithFiles(Long id, Student updatedData, List<String> hobbies,
-                                          MultipartFile photo, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException {
+    private String generateEnrollmentNumber() {
+        int currentYear = Year.now().getValue();
 
-        Student existingStudent = getStudentById(id);
-        if (existingStudent == null) return null;
+        Long count = studentRepository.countByEnrollmentYear(currentYear);
 
-        // Basic fields
-        existingStudent.setFirstName(updatedData.getFirstName());
-        existingStudent.setLastName(updatedData.getLastName());
-        existingStudent.setFatherName(updatedData.getFatherName());
-        existingStudent.setGender(updatedData.getGender());
-        existingStudent.setMobileNumber(updatedData.getMobileNumber());
-        existingStudent.setDateOfBirth(updatedData.getDateOfBirth());
-        existingStudent.setDescription(updatedData.getDescription());
-        existingStudent.setCity(updatedData.getCity());
-        existingStudent.setStandard(updatedData.getStandard());
-        existingStudent.setSubjects(updatedData.getSubjects()); // Many-to-Many
-        existingStudent.setHobbies(String.join(",", hobbies));
+        long nextNumber = (count == null ? 0 : count) + 1;
 
-        // Photo file
-        if (photo != null && !photo.isEmpty()) {
-            String photoFileName = FileUploadService.saveFile("student-photos/" + id, photo.getOriginalFilename(), photo);
-            existingStudent.setPhoto(photoFileName);
-        }
+        // Format with leading zeros, e.g., 00001
+        String numberStr = String.format("%05d", nextNumber);
 
-        // Aadhaar file
-        if (aadhaarFile != null && !aadhaarFile.isEmpty()) {
-            String aadhaarFileName = FileUploadService.saveFile("student-documents/" + id + "/aadhaar", aadhaarFile.getOriginalFilename(), aadhaarFile);
-            existingStudent.setAadhaarFileName(aadhaarFileName);
-        }
-
-        // PAN file
-        if (panFile != null && !panFile.isEmpty()) {
-            String panFileName = FileUploadService.saveFile("student-documents/" + id + "/pan", panFile.getOriginalFilename(), panFile);
-            existingStudent.setPanFileName(panFileName);
-        }
-
-        return studentRepository.save(existingStudent);
+        return "STD-" + currentYear + "-" + numberStr;
     }
+
 
     @Override
     public void validateStudent(Student student, MultipartFile photo, MultipartFile aadhaarFile,
                                 MultipartFile panFile, BindingResult result) {
-        final long MAX_FILE_SIZE = 1 * 1024 * 1024;
 
         if (student.getDateOfBirth() == null) {
-            result.rejectValue("dateOfBirth", "error.student", "Please enter a valid date of birth.");
+            result.reject("dateOfBirth", "Please enter a valid date of birth.");
         }
 
         if (photo != null && photo.getSize() > MAX_FILE_SIZE) {
-            result.rejectValue("photo", "error.student", "Photo file size exceeds 1MB limit.");
+            result.reject("photo", "Photo file size exceeds 1MB limit.");
         }
 
         if (aadhaarFile != null && aadhaarFile.getSize() > MAX_FILE_SIZE) {
-            result.rejectValue("aadhaarFileName", "error.student", "Aadhaar file size exceeds 1MB limit.");
+            result.reject("aadhaarFileName", "Aadhaar file size exceeds 1MB limit.");
         }
 
         if (panFile != null && panFile.getSize() > MAX_FILE_SIZE) {
-            result.rejectValue("panFileName", "error.student", "PAN file size exceeds 1MB limit.");
+            result.reject("panFileName", "PAN file size exceeds 1MB limit.");
         }
     }
 
@@ -138,32 +118,4 @@ public class StudentServiceImpl implements StudentService {
     public Student getStudentById(Long id) {
         return studentRepository.findById(id).orElse(null);
     }
-
-    @Override
-    public Page<Student> getPaginatedStudents(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return studentRepository.findAll(pageable);
-    }
-
-    @Override
-    public Page<Student> searchStudents(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return studentRepository.findAll(pageable);
-        }
-        return studentRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(keyword, keyword, pageable);
-    }
-
-    @Override
-    public Page<Student> search(String keyword, Pageable pageable) {
-        if (keyword == null || keyword.isEmpty()) {
-            return studentRepository.findAll(pageable);
-        } else {
-            return studentRepository.findByFirstNameContainingIgnoreCase(keyword, pageable);
-        }
-    }
-
-
-
-
 }

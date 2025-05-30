@@ -1,5 +1,6 @@
 package com.app.repository;
 
+import com.app.entity.AcademicYear;
 import com.app.entity.Student;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,13 @@ import java.util.List;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
+
+	@Query("SELECT COUNT(s) FROM Student s WHERE s.enrollmentNumber LIKE CONCAT('STD-', :year, '%')")
+	Long countByEnrollmentYear(@Param("year") int year);
+
+	@Query("SELECT s FROM Student s JOIN FETCH s.city JOIN FETCH s.state JOIN FETCH s.standard JOIN FETCH s.academicYear")
+	List<Student> findAllWithRelations();
+
 
 	// Simple list search by keyword (firstName, lastName, email)
 	@Query("SELECT s FROM Student s WHERE " +

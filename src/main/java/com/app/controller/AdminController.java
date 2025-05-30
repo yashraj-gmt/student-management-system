@@ -28,6 +28,11 @@ public class AdminController {
         return "admin/admin_dashboard";
     }
 
+    @GetMapping("/admin/manageStudents")
+    public String studentManagement() {
+        return "admin/students";
+    }
+
 //    public static String hashPassword(String plainPassword) {
 //        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(plainPassword);
 //    }

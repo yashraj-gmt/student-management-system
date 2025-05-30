@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .authenticationProvider(authProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/register", "/login", "/forgot-password", "/verify-otp",
+                                "/","/register", "/login", "/forgot-password", "/verify-otp",
                                 "/static/**", "/css/**", "/js/**", "/image/**",
                                 "/webjars/**", "/main", "/about", "/courses", "/contact"
                         ).permitAll()

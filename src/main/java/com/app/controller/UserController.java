@@ -1,9 +1,6 @@
-/*
 package com.app.controller;
 
 import com.app.entity.User;
-import com.app.service.EmailService;
-import com.app.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,13 +10,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class UserController {
 
-    private final UserService userService;
-    private final EmailService emailService;
-
-    public UserController(UserService userService, EmailService emailService) {
-        this.userService = userService;
-        this.emailService = emailService;
-    }
+//    private final UserService userService;
+//    private final EmailService emailService;
+//
+//    public UserController(UserService userService, EmailService emailService) {
+//        this.userService = userService;
+//        this.emailService = emailService;
+//    }
 
     @GetMapping("/home")
     public String homePage() {
@@ -44,12 +41,20 @@ public class UserController {
         return "public/contact";
     }
 
-    @GetMapping("/index")
-    public String indexPage(Model model){
+//    @GetMapping("/index")
+//    public String indexPage(Model model){
+//        model.addAttribute("activePage", "index");
+//        return "public/index";
+//
+//    }
+
+
+    @GetMapping("/")
+    public String rootPage(Model model) {
         model.addAttribute("activePage", "index");
         return "public/index";
-
     }
+
 
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
@@ -57,7 +62,7 @@ public class UserController {
         return "register";
     }
 
-    @PostMapping("/register")
+   /* @PostMapping("/register")
     public String registerUser(@ModelAttribute User user,
                                @RequestParam("confirmPassword") String confirmPassword,
                                Model model) {
@@ -76,7 +81,7 @@ public class UserController {
         // Save user (password should be encoded in the service layer)
         userService.saveUser(user);
         return "redirect:/login?success";
-    }
+    }*/
 
     @GetMapping("/login")
     public String loginForm(@RequestParam(value = "error", required = false) String error,
@@ -94,7 +99,7 @@ public class UserController {
         model.addAttribute("email", email);
         return "login";
     }
-
+/*
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
@@ -117,12 +122,11 @@ public class UserController {
             return "forgot_password";
         }
 
-*/
-/*        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
         long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
         long expiryTime = System.currentTimeMillis() + (1 * 60 * 1000);
         userService.saveOtp(user, otp, expiryTime);
-        emailService.sendOtpEmail(user.getEmail(), otp);*//*
+        emailService.sendOtpEmail(user.getEmail(), otp);
 
         userService.generateAndSendOtp(user);
         model.addAttribute("email", email);
@@ -142,8 +146,7 @@ public class UserController {
         return "verify_otp"; // OTP verification page
     }
 
-*/
-/*//*
+//*
 ///updates
     @PostMapping("/verify-otp")
     public String verifyOtp(@RequestParam String email,
@@ -178,7 +181,7 @@ public class UserController {
         model.addAttribute("email", email);
         return "reset_password";
     }
-*//*
+
 
 
     @GetMapping("/reset-password")
@@ -200,7 +203,7 @@ public class UserController {
         redirectAttributes.addFlashAttribute("message", "Password reset successfully. Please login.");
         userService.updatePassword(user, newPassword); // Update the password
         return "redirect:/login?resetSuccess"; // Redirect to login page with success message
-    }
+    }*/
 
 
-}*/
+}

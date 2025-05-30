@@ -21,7 +21,10 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
     private String enrollmentNumber;
+
     private String firstName;
     private String lastName;
     private String fatherName;
@@ -30,10 +33,15 @@ public class Student {
     private String mobileNumber;
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "state_id")
+    private State state;
+
+//    @Transient
     private String photo;
 
     private String aadhaarFileName;
@@ -46,12 +54,18 @@ public class Student {
 
     private String otp;
     private Long otpExpiry;
+
     @OneToOne
     private User userAccount; // Link to User credentials
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Standard standard; // For pre-registration with standard
 
+
+    // Student.java
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "academic_year_id")
+    private AcademicYear academicYear;
 
     private Boolean profileCompleted = false; // ✅ NEW
 
