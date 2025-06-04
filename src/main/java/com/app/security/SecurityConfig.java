@@ -20,8 +20,6 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-
-
     // Admin Security Filter Chain
     @Bean
     @Order(1)
@@ -58,19 +56,22 @@ public class SecurityConfig {
                 .authenticationProvider(authProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/","/register", "/login", "/forgot-password", "/verify-otp",
-                                "/static/**", "/css/**", "/js/**", "/image/**",
-                                "/webjars/**", "/main", "/about", "/courses", "/contact"
+                                "/","/register", "/user-login", "/forgot-password", "/verify-otp", "/admin/students/check-email",
+                                "/static/**", "/css/**", "/js/**", "/image/**","/students/profile", "/registerInfo",
+                                "/webjars/**", "/main", "/about", "/courses", "/contact", "/students/stu/city",
+                                "/complete-registration", "/registration/**", "/student/**", "/students/home", "/students/complete-profile"
                         ).permitAll()
                         .requestMatchers("/students/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
+                        .loginPage("/user-login")
+                        .loginProcessingUrl("/user-login")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/students", true)
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("/students/home");
+                        })
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

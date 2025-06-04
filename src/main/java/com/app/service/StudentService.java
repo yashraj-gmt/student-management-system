@@ -2,31 +2,47 @@ package com.app.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import com.app.entity.Student;
+import org.apache.naming.factory.SendMailFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface StudentService {
-	List<Student> getAllStudents();
+    List<Student> getAllStudents();
 
-	Student saveStudent(Student student);
+    void completeProfile(Student existingStudent, Student formInput, List<String> hobbies, MultipartFile photoFile, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;
 
-	public Student registerStudent(Student student, List<String> hobbies, MultipartFile photo,
-								   MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;
+    Student saveStudent(Student student);
 
-	Student getStudentById(Long id);
+	void deleteStudent(Long id);
 
-//	Student updateStudentWithFiles(Long id, Student updatedData, List<String> hobbies,
-//								   MultipartFile photo, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;
+	Student updateStudent(Long id, Student updatedStudent, List<String> hobbies,
+						  MultipartFile photo, MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;
 
-	void validateStudent(Student student, MultipartFile photo, MultipartFile aadhaarFile,
-								MultipartFile panFile, BindingResult result);
+    Student registerStudent(Student student, List<String> hobbies, MultipartFile photo,
+                            MultipartFile aadhaarFile, MultipartFile panFile) throws IOException;
 
-//	Page<Student> getPaginatedStudents(int page, int size);
-//
-//	Page<Student> searchStudents(String keyword, int page, int size);
-//
-//	Page<Student> search(String keyword, Pageable pageable);
+    Student getStudentById(Long id);
+
+    void validateStudent(Student student, MultipartFile photo, MultipartFile aadhaarFile,
+                         MultipartFile panFile, BindingResult result);
+
+    List<Student> getAllStudentsWithRelations();
+
+    Optional<Student> findByOtp(String otp);
+
+    Optional<Student> findByEmail(String email);
+
+    Page<Student> searchStudents(String keyword, Pageable pageable);
+
+    Page<Student> getAllStudentsPaginated(Pageable pageable);
+
+    public void deleteStudentsByIds(List<Long> ids);
+
 
 }

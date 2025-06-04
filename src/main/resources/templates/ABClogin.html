@@ -1,0 +1,291 @@
+<!--
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login</title>
+
+  <style>
+    /* Your existing CSS unchanged */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 20px auto;
+      width: 120px;
+      max-width: 100%;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      background-color: #fafafa;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+      outline: none;
+      box-shadow: 0 0 6px rgba(74, 144, 226, 0.4);
+    }
+
+    .error,
+    .success {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .field-error {
+      color: red;
+      font-size: 13px;
+      margin: 2px 0 10px 2px;
+      text-align: left;
+      display: block;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #34a853;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2c8c47;
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .footer-link a {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+
+    .show-password {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      .form-container {
+        padding: 20px 15px;
+        margin: 40px 10px;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="form-container">
+  <img th:src="@{/image/gm_technosys.png}" alt="Logo" class="logo" />
+
+  <h2>Student Login</h2>
+
+  &lt;!&ndash; Feedback messages &ndash;&gt;
+  <div th:if="${param.error == 'wrong-password'}" class="error">Incorrect password. Try again.</div>
+  <div th:if="${param.error == 'user-not-found'}" class="error">Email or Mobile number not registered.</div>
+  <div th:if="${param.error == 'unknown'}" class="error">Login failed due to unknown error.</div>
+  <div th:if="${error}" class="error" th:text="${error}"></div>
+  <div th:if="${param.logout}" class="success">You have been logged out.</div>
+  <div th:if="${param.success}" class="success">Registration successful! Please log in.</div>
+  <div th:if="${message}" class="success" th:text="${message}"></div>
+
+  <form th:action="@{/login}" method="post" onsubmit="return validateLogin()" novalidate>
+    <label>Email or Mobile Number:</label>
+    <input
+            type="text"
+            name="loginId"
+            id="loginId"
+            required
+            placeholder="Enter your email or 10-digit mobile number"
+            th:value="${loginId}"
+            autocomplete="username"
+    />
+    <span id="loginIdError" class="field-error" style="display: none;"></span>
+
+    <label>Password:</label>
+    <input type="password" name="password" id="password" required placeholder="Enter your password" autocomplete="current-password" />
+    <span id="passwordError" class="field-error" style="display: none;"></span>
+
+    <div class="show-password">
+      <input type="checkbox" id="showPassword" />
+      <label for="showPassword">Show Password</label>
+    </div>
+
+    <button type="submit">Login</button>
+    <input type="hidden" name="loginAttempted" id="loginAttempted" value="false" />
+  </form>
+
+  <div class="footer-link">
+    <a th:href="@{/register}">Don't have an account? Register</a>
+    <a href="javascript:void(0);" onclick="redirectToForgotPassword()">Forgot Password?</a>
+  </div>
+</div>
+
+<script>
+  function log(message, level = 'info') {
+    const time = new Date().toISOString();
+    if (level === 'error') {
+      console.error(`[${time}] ERROR: ${message}`);
+    } else if (level === 'warn') {
+      console.warn(`[${time}] WARN: ${message}`);
+    } else {
+      console.log(`[${time}] INFO: ${message}`);
+    }
+  }
+
+  function validateLogin() {
+    const loginId = document.getElementById('loginId').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const loginIdError = document.getElementById('loginIdError');
+    const passwordError = document.getElementById('passwordError');
+
+    loginIdError.textContent = '';
+    loginIdError.style.display = 'none';
+    passwordError.textContent = '';
+    passwordError.style.display = 'none';
+
+    let valid = true;
+
+    // Regex for email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Regex for 10-digit mobile number (only digits)
+    const mobilePattern = /^\d{10}$/;
+
+    if (!loginId) {
+      loginIdError.textContent = 'Email or mobile number is required.';
+      loginIdError.style.display = 'block';
+      log('Login ID is empty.', 'warn');
+      valid = false;
+    } else if (!emailPattern.test(loginId) && !mobilePattern.test(loginId)) {
+      loginIdError.textContent = 'Enter a valid email or 10-digit mobile number.';
+      loginIdError.style.display = 'block';
+      log('Invalid login ID format.', 'warn');
+      valid = false;
+    }
+
+    if (!password) {
+      passwordError.textContent = 'Password is required.';
+      passwordError.style.display = 'block';
+      log('Password is empty.', 'warn');
+      valid = false;
+    }
+
+    if (valid) {
+      sessionStorage.setItem('loginIdForRecovery', loginId);
+      document.getElementById('loginAttempted').value = 'true';
+
+      log(`Login attempt for: ${loginId}`, 'info');
+
+      fetch('/save-login-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'loginId=' + encodeURIComponent(loginId),
+      })
+              .then(() => log('Login ID saved successfully.'))
+              .catch((err) => log('Failed to save login ID: ' + err.message, 'error'));
+    }
+
+    return valid;
+  }
+
+  function redirectToForgotPassword() {
+    const loginId = document.getElementById('loginId').value.trim();
+    if (loginId) {
+      log(`Redirecting to forgot password with login ID: ${loginId}`);
+      window.location.href = `/forgot-password?loginId=${encodeURIComponent(loginId)}`;
+    } else {
+      log('Redirecting to forgot password without login ID');
+      window.location.href = '/forgot-password';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const showPasswordCheckbox = document.getElementById('showPassword');
+    const passwordField = document.getElementById('password');
+
+    showPasswordCheckbox.addEventListener('change', function () {
+      passwordField.type = this.checked ? 'text' : 'password';
+      log(`Show password toggled: ${this.checked}`);
+    });
+  });
+</script>
+</body>
+</html>
+-->

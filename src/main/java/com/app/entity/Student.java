@@ -22,11 +22,12 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String enrollmentNumber;
 
     private String firstName;
     private String lastName;
+    private String email;
     private String fatherName;
     private String gender;
     private String hobbies;
@@ -40,6 +41,12 @@ public class Student {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "state_id")
     private State state;
+
+    // Add these fields:
+    private String token;
+
+    @Column(name = "generated_password")
+    private String generatedPassword;
 
 //    @Transient
     private String photo;
@@ -67,7 +74,7 @@ public class Student {
     @JoinColumn(name = "academic_year_id")
     private AcademicYear academicYear;
 
-    private Boolean profileCompleted = false; // ✅ NEW
+    private Boolean profileCompleted = false;
 
     public String getPhotosPath() {
         if (id == null || photo == null) {
@@ -102,4 +109,7 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentSubject> studentSubjects;
+
+    private String createdBy;  // admin or user
+
 }

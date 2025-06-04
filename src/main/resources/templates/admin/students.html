@@ -1,157 +1,208 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Students</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="_csrf" th:content="${_csrf.token}"/>
-  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <style>
-    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-    }
+    <title>Students</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
 
-    h1 {
-      color: #333;
-      font-size: 2rem;
-      text-align: center;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-    .logout-button {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 14px 20px;
-      font-size: 17px;
-      cursor: pointer;
-      font-family: inherit;
-    }
+        h1 {
+            color: #333;
+            font-size: 2rem;
+            text-align: center;
+        }
 
-    .action-buttons a.delete:hover {
-      background-color: #c82333;
-    }
+        .logout-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 17px;
+            cursor: pointer;
+            font-family: inherit;
+        }
 
-    .navbar {
-      background: #ffffff;
-      background: linear-gradient(155deg, rgba(255, 255, 255, 1) 0%, rgba(240, 240, 240, 1) 63%, rgba(74, 130, 186, 1) 100%);
-    }
+        .action-buttons a.delete:hover {
+            background-color: #c82333;
+        }
 
-    .navbar-nav .nav-link {
-      color: #000000 !important;
-      font-weight: 500;
-      padding: 10px 15px;
-    }
+        .navbar {
+            background: #ffffff;
+            background: linear-gradient(155deg, rgba(255, 255, 255, 1) 0%, rgba(240, 240, 240, 1) 63%, rgba(74, 130, 186, 1) 100%);
+        }
 
-    .navbar-nav .nav-link:hover {
-      color: #ffc107 !important;
-    }
+        .navbar-nav .nav-link {
+            color: #000000 !important;
+            font-weight: 500;
+            padding: 10px 15px;
+        }
 
-    .logo {
-      width: 120px;
-    }
+        .navbar-nav .nav-link:hover {
+            color: #ffc107 !important;
+        }
 
-  </style>
+        .logo {
+            width: 120px;
+        }
+
+        .card {
+            border-radius: 1rem;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        a.btn {
+            margin-right: 5px;
+        }
+
+
+    </style>
 </head>
 <body>
 
 <nav class="navbar navbar-light navbar-expand-lg bg-white shadow-sm">
-  <div class="container-fluid">
-    <!-- Logo -->
-    <a class="navbar-brand" href="/home">
-      <img th:src="@{/image/gm_technosys.png}" alt="Logo" class="logo">
-    </a>
+    <div class="container-fluid">
+        <!-- Logo -->
+        <a class="navbar-brand" href="/admin/dashboard">
+            <img th:src="@{/image/gm_technosys.png}" alt="Logo" class="logo">
+        </a>
 
-    <!-- Toggler for mobile (Offcanvas) -->
-    <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas"
-            data-bs-target="#mobileMenu" aria-controls="mobileMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+        <!-- Toggler for mobile (Offcanvas) -->
+        <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <!-- Desktop Menu -->
-    <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" th:href="@{/admin/students/register}">Add Student</a></li>
-        <li class="nav-item"><a class="nav-link" href="/assign-subjects">Assign Subjects</a></li>
-        <li class="nav-item"><a class="nav-link" href="/assign-subjects/student-subjects">Students-Subjects</a></li>
-        <li class="nav-item"><a class="nav-link" href="/subjects">Add Subjects</a></li>
-      </ul>
+        <!-- Desktop Menu -->
+        <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarNav">
+            <!--      <ul class="navbar-nav mx-auto">-->
+            <!--        <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}">Home</a></li>-->
+            <!--        <li class="nav-item"><a class="nav-link" th:href="@{/admin/students/register}">Add Student</a></li>-->
+            <!--        <li class="nav-item"><a class="nav-link" href="/assign-subjects">Assign Subjects</a></li>-->
+            <!--        <li class="nav-item"><a class="nav-link" href="/assign-subjects/student-subjects">Students-Subjects</a></li>-->
+            <!--        <li class="nav-item"><a class="nav-link" href="/subjects">Add Subjects</a></li>-->
+            <!--      </ul>-->
 
-      <form th:action="@{/logout}" method="post" class="d-flex ms-auto">
-        <button type="submit" class="logout-button rounded">Logout</button>
-      </form>
+            <form th:action="@{/logout}" method="post" class="d-flex ms-auto">
+                <button type="submit" class="logout-button rounded">Logout</button>
+            </form>
+        </div>
     </div>
-  </div>
 </nav>
 
 <!-- Offcanvas Menu-->
-<div class="offcanvas offcanvas-start d-lg-none" style="width: 50%;"  tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title text-primary" id="mobileMenuLabel">Menu</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body d-flex flex-column justify-content-between h-100">
-    <ul class="navbar-nav">
-      <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Home</a></li>
-      <li class="nav-item"><a class="nav-link" href="/admin/students/register">Add Student</a></li>
-      <li class="nav-item"><a class="nav-link" href="/assign-subjects">Assign Subjects</a></li>
-      <li class="nav-item"><a class="nav-link" href="/assign-subjects/student-subjects">Students-Subjects</a></li>
-      <li class="nav-item"><a class="nav-link" href="/subjects">Add Subjects</a></li>
-    </ul>
-    <form th:action="@{/logout}" method="post" class="mt-3">
-      <button type="submit" class="logout-button w-100">Logout</button>
-    </form>
-  </div>
-</div>
-
-<div class="container mt-4">
-  <h1 class="mb-4">All Students</h1>
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-      <tr>
-        <th>ID</th>
-        <th>Enrollment No</th>
-        <th>Name</th>
-        <th>Father's Name</th>
-        <th>Gender</th>
-        <th>Mobile</th>
-        <th>Hobbies</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Standard</th>
-        <th>Academic Year</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="student : ${students}">
-        <td th:text="${student.id}"></td>
-        <td th:text="${student.enrollmentNumber}"></td>
-        <td th:text="${student.firstName + ' ' + student.lastName}"></td>
-        <td th:text="${student.fatherName}"></td>
-        <td th:text="${student.gender}"></td>
-        <td th:text="${student.mobileNumber}"></td>
-        <td th:text="${student.hobbies}"></td>
-        <td th:text="${student.cityId}"></td>
-        <td th:text="${student.stateId}"></td>
-        <td th:text="${student.standardId}"></td>
-        <td th:text="${student.academicYearId}"></td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+<div class="offcanvas offcanvas-start d-lg-none" style="width: 50%;" tabindex="-1" id="mobileMenu"
+     aria-labelledby="mobileMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title text-primary" id="mobileMenuLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column justify-content-between h-100">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/students/register">Add Student</a></li>
+            <li class="nav-item"><a class="nav-link" href="/assign-subjects">Assign Subjects</a></li>
+            <li class="nav-item"><a class="nav-link" href="/assign-subjects/student-subjects">Students-Subjects</a></li>
+            <li class="nav-item"><a class="nav-link" href="/subjects">Add Subjects</a></li>
+        </ul>
+        <form th:action="@{/logout}" method="post" class="mt-3">
+            <button type="submit" class="logout-button w-100">Logout</button>
+        </form>
+    </div>
 </div>
 
 
+<div class="container mt-5">
+    <h1 class="mb-4">Student Management</h1>
+    <div class="row g-4">
+
+        <!-- View All Students -->
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-people-fill display-4 text-primary mb-3"></i>
+                    <h5 class="card-title">View All Students</h5>
+                    <a href="/admin/students/viewStudents" class="btn btn-primary mt-2">View</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Student -->
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-person-plus-fill display-4 text-success mb-3"></i>
+                    <h5 class="card-title">Add Student</h5>
+                    <a href="/admin/students/register" class="btn btn-success mt-2">Add</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pre-register Admin -->
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-person-badge-fill display-4 text-dark mb-3"></i>
+                    <h5 class="card-title">Pre-register Admin</h5>
+                    <a href="/admin/students/pre-register" class="btn btn-dark mt-2">Pre-register</a>
+                </div>
+            </div>
+        </div>
 
 
+        <!-- Add Subject Standard-wise -->
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-journal-plus display-4 text-warning mb-3"></i>
+                    <h5 class="card-title">Add Subjects by Standard</h5>
+                    <a href="/admin/subjects" class="btn btn-warning text-white mt-2">Add Subjects</a>
+                </div>
+            </div>
+        </div>
 
+        <!--    &lt;!&ndash; Assign Subjects &ndash;&gt;-->
+        <!--    <div class="col-md-4">-->
+        <!--      <div class="card text-center shadow-sm h-100">-->
+        <!--        <div class="card-body">-->
+        <!--          <i class="bi bi-link display-4 text-info mb-3"></i>-->
+        <!--          <h5 class="card-title">Assign Subjects to Student</h5>-->
+        <!--          <a href="/assign-subjects" class="btn btn-info text-white mt-2">Assign</a>-->
+        <!--        </div>-->
+        <!--      </div>-->
+        <!--    </div>-->
+
+        <!-- View Assigned Subjects -->
+        <!--    <div class="col-md-4">-->
+        <!--      <div class="card text-center shadow-sm h-100">-->
+        <!--        <div class="card-body">-->
+        <!--          <i class="bi bi-table display-4 text-secondary mb-3"></i>-->
+        <!--          <h5 class="card-title">Students & Subjects</h5>-->
+        <!--          <a href="/assign-subjects/student-subjects" class="btn btn-secondary mt-2">View</a>-->
+        <!--        </div>-->
+        <!--      </div>-->
+        <!--    </div>-->
+
+    </div>
+
+  <a th:href="@{/admin/dashboard}" class="btn btn-outline-secondary mt-5">Back to Dashboard</a>
+
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

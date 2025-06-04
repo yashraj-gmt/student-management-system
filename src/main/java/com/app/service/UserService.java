@@ -1,20 +1,12 @@
-/*
 package com.app.service;
 
 import com.app.entity.User;
 
+import java.util.Optional;
+
 public interface UserService {
 
-    void saveUser(User user);
+    User save(User user);
 
-    User findByEmail(String email);
-
-//    User findByResetToken(String token); // Optional if you no longer use token-based reset
-
-    void updatePassword(User user, String rawPassword);
-
-    void saveOtp(User user, String otp, long expiryTime);
-
-    void generateAndSendOtp(User user);
+    Optional<User> findByEmail(String email);
 }
-*/

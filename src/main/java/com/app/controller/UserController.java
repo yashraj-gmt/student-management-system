@@ -1,11 +1,9 @@
 package com.app.controller;
 
 import com.app.entity.User;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UserController {
@@ -18,10 +16,10 @@ public class UserController {
 //        this.emailService = emailService;
 //    }
 
-    @GetMapping("/home")
-    public String homePage() {
-        return "home";
-    }
+//    @GetMapping("/home")
+//    public String homePage() {
+//        return "home";
+//    }
 
     @GetMapping("/about")
     public String aboutPage(Model model) {
@@ -35,11 +33,11 @@ public class UserController {
         return "public/courses";
     }
 
-    @GetMapping("/contact")
-    public String contactPage(Model model) {
-        model.addAttribute("activePage", "contact");
-        return "public/contact";
-    }
+//    @GetMapping("/contact")
+//    public String contactPage(Model model) {
+//        model.addAttribute("activePage", "contact");
+//        return "public/contact";
+//    }
 
 //    @GetMapping("/index")
 //    public String indexPage(Model model){
@@ -48,6 +46,10 @@ public class UserController {
 //
 //    }
 
+    @GetMapping("/registerInfo")
+    public String studentRegisterInfo(){
+        return "register_info";
+    }
 
     @GetMapping("/")
     public String rootPage(Model model) {
@@ -56,11 +58,11 @@ public class UserController {
     }
 
 
-    @GetMapping("/register")
-    public String showRegisterForm(Model model) {
-        model.addAttribute("user", new User());
-        return "register";
-    }
+//    @GetMapping("/register")
+//    public String showRegisterForm(Model model) {
+//        model.addAttribute("user", new User());
+//        return "ABCregister";
+//    }
 
    /* @PostMapping("/register")
     public String registerUser(@ModelAttribute User user,
@@ -99,6 +101,8 @@ public class UserController {
         model.addAttribute("email", email);
         return "login";
     }
+
+
 /*
     @PostMapping("/logout")
     public String logout(HttpSession session) {

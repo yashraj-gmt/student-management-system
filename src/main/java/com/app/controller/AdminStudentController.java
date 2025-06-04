@@ -2,20 +2,36 @@ package com.app.controller;
 
 import com.app.entity.City;
 import com.app.entity.Student;
-import com.app.repository.StudentRepository;
 import com.app.service.AcademicYearService;
 import com.app.service.LocationService;
 import com.app.service.StandardService;
 import com.app.service.StudentService;
+import com.itextpdf.text.*;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPCell;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/admin/students")
@@ -25,7 +41,6 @@ public class AdminStudentController {
     private final StandardService standardService;
     private final AcademicYearService academicYearService;
     private final LocationService locationService;
-    private final StudentRepository studentRepository;
 
     private static final List<String> GENDERS = List.of("Male", "Female", "Other");
     private static final List<String> HOBBIES = List.of("Reading", "Sports", "Music", "Traveling", "Other");
@@ -33,12 +48,11 @@ public class AdminStudentController {
     public AdminStudentController(StudentService studentService,
                                   StandardService standardService,
                                   AcademicYearService academicYearService,
-                                  LocationService locationService, StudentRepository studentRepository) {
+                                  LocationService locationService) {
         this.studentService = studentService;
         this.standardService = standardService;
         this.academicYearService = academicYearService;
         this.locationService = locationService;
-        this.studentRepository = studentRepository;
     }
 
     private void populateFormModel(Model model) {
@@ -47,6 +61,12 @@ public class AdminStudentController {
         model.addAttribute("states", locationService.getAllStates());
         model.addAttribute("standards", standardService.getAllStandards());
         model.addAttribute("academicYears", academicYearService.getAllAcademicYears());
+    }
+
+
+    @GetMapping("")
+    public String studentManagement() {
+        return "admin/students";
     }
 
     @GetMapping("/register")
@@ -78,18 +98,231 @@ public class AdminStudentController {
             populateFormModel(model);
             return "admin/admin_student_registration";
         }
-
+        student.setCreatedBy("admin");
         studentService.registerStudent(student, hobbies, photoFile, aadhaarFile, panFile);
+        model.addAttribute("successMsg", "Student registered successfully!");
 
-        return "redirect:/admin/manageStudents";
+        return "admin/admin_student_registration";
     }
 
-    @GetMapping("/manageStudents")
-    public String manageStudents(Model model) {
-        List<Student> students = studentRepository.findAllWithRelations();
-        model.addAttribute("students", students);
-        return "students";
+    @GetMapping("/viewStudents")
+    public String manageStudents(
+            Model model,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "size", defaultValue = "5") int pageSize) {
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").descending());
+
+        Page<Student> studentPage = studentService.searchStudents(keyword, pageable);
+
+        model.addAttribute("students", studentPage.getContent());
+        model.addAttribute("totalPages", studentPage.getTotalPages());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalItems", studentPage.getTotalElements());
+
+        return "admin/view_students";
     }
+
+
+//    @GetMapping("/viewStudents")
+//    public String manageStudents(Model model) {
+//        List<Student> students = studentService.getAllStudentsWithRelations();
+//        model.addAttribute("students", students);
+//        return "admin/view_students";
+//    }
+
+
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Student student = studentService.getStudentById(id);
+        model.addAttribute("student", student);
+        populateFormModel(model);
+        return "admin/edit_student";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateStudent(@PathVariable Long id,
+                                @Valid @ModelAttribute("student") Student student,
+                                @RequestParam("hobbies") List<String> hobbies,
+                                @RequestParam("photoFile") MultipartFile photo,
+                                @RequestParam("aadhaarFile") MultipartFile aadhaar,
+                                @RequestParam("panFile") MultipartFile pan,
+                                BindingResult result,
+                                Model model) throws IOException {
+
+        studentService.validateStudent(student, photo, aadhaar, pan, result);
+
+        if (result.hasErrors()) {
+            populateFormModel(model);
+            return "admin/edit_student";
+        }
+
+        studentService.updateStudent(id, student, hobbies, photo, aadhaar, pan);
+        return "redirect:/admin/students/viewStudents";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
+        return "redirect:/admin/students/viewStudents";
+    }
+
+    @GetMapping("/export/csv")
+    public void exportToCSV(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=students.csv");
+
+        List<Student> students = studentService.getAllStudents(); // Modify if you want to filter
+
+        PrintWriter writer = response.getWriter();
+        // Header
+        writer.println("Enrollment Number,First Name,Father's Name,Last Name,Email,Gender,Mobile,State,City,Standard");
+
+        for (Student student : students) {
+            writer.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
+                    student.getEnrollmentNumber(),
+                    student.getFirstName(),
+                    student.getFatherName(),
+                    student.getLastName(),
+                    student.getEmail(),
+                    student.getGender(),
+                    student.getMobileNumber(),
+                    student.getState() != null ? student.getState().getName() : "",
+                    student.getCity() != null ? student.getCity().getName() : "",
+                    student.getStandard() != null ? student.getStandard().getName() : ""
+            );
+        }
+
+        writer.flush();
+        writer.close();
+    }
+
+    @GetMapping("/export/pdf")
+    public void exportToPDF(HttpServletResponse response) throws IOException {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=students.pdf");
+
+        List<Student> students = studentService.getAllStudents(); // Adjust if needed
+
+        try {
+            Document document = new Document(PageSize.A4.rotate());
+            PdfWriter.getInstance(document, response.getOutputStream());
+
+            document.open();
+
+            Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+            Paragraph title = new Paragraph("Registered Students", fontTitle);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingAfter(20);
+            document.add(title);
+
+            PdfPTable table = new PdfPTable(10);
+            table.setWidthPercentage(100);
+            table.setWidths(new int[]{3, 4, 4, 4, 5, 3, 4, 3, 3, 3});
+
+            // Table Headers
+            Stream.of("Enrollment No", "First Name", "Father's Name", "Last Name", "Email",
+                            "Gender", "Mobile", "State", "City", "Standard")
+                    .forEach(header -> {
+                        PdfPCell cell = new PdfPCell();
+                        cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                        cell.setPhrase(new Phrase(header));
+                        table.addCell(cell);
+                    });
+
+            for (Student student : students) {
+                table.addCell(student.getEnrollmentNumber());
+                table.addCell(student.getFirstName());
+                table.addCell(student.getFatherName());
+                table.addCell(student.getLastName());
+                table.addCell(student.getEmail());
+                table.addCell(student.getGender());
+                table.addCell(student.getMobileNumber());
+                table.addCell(student.getState() != null ? student.getState().getName() : "");
+                table.addCell(student.getCity() != null ? student.getCity().getName() : "");
+                table.addCell(student.getStandard() != null ? student.getStandard().getName() : "");
+            }
+
+            document.add(table);
+            document.close();
+
+        } catch (DocumentException e) {
+            throw new IOException("Error generating PDF: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/export/excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=students.xlsx");
+
+        List<Student> students = studentService.getAllStudents();
+
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            XSSFSheet sheet = workbook.createSheet("Students");
+
+            // Header
+            Row header = sheet.createRow(0);
+            String[] columns = {"Enrollment No", "First Name", "Father's Name", "Last Name", "Email", "Gender",
+                    "Mobile", "State", "City", "Standard"};
+
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = header.createCell(i);
+                cell.setCellValue(columns[i]);
+            }
+
+            // Data rows
+            int rowNum = 1;
+            for (Student student : students) {
+                Row row = sheet.createRow(rowNum++);
+
+                row.createCell(0).setCellValue(student.getEnrollmentNumber());
+                row.createCell(1).setCellValue(student.getFirstName());
+                row.createCell(2).setCellValue(student.getFatherName());
+                row.createCell(3).setCellValue(student.getLastName());
+                row.createCell(4).setCellValue(student.getEmail());
+                row.createCell(5).setCellValue(student.getGender());
+                row.createCell(6).setCellValue(student.getMobileNumber());
+                row.createCell(7).setCellValue(student.getState() != null ? student.getState().getName() : "");
+                row.createCell(8).setCellValue(student.getCity() != null ? student.getCity().getName() : "");
+                row.createCell(9).setCellValue(student.getStandard() != null ? student.getStandard().getName() : "");
+            }
+
+            // Auto-size columns
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(response.getOutputStream());
+        }
+    }
+
+
+    @PostMapping("/delete-multiple")
+    public String deleteMultipleStudents(@RequestParam("studentIds") List<Long> studentIds) {
+        studentService.deleteStudentsByIds(studentIds);
+        return "redirect:/admin/students/viewStudents";
+    }
+
+
+    @GetMapping("/view/{id}")
+    public String viewStudentProfile(@PathVariable Long id, Model model) {
+        Student student = studentService.getStudentById(id);
+        model.addAttribute("student", student);
+        return "/admin/view_student_profile"; // Name of your Thymeleaf template
+    }
+
+    @GetMapping("/check-email")
+    @ResponseBody
+    public ResponseEntity<Boolean> checkEmailUnique(@RequestParam("email") String email) {
+        boolean emailExists = studentService.findByEmail(email).isPresent();
+        return ResponseEntity.ok(!emailExists);
+    }
+
 
 
 }

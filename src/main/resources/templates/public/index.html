@@ -111,7 +111,7 @@
 
         <nav id="navmenu" class="navmenu">
             <ul>
-                <li><a th:href="@{/index}"
+                <li><a th:href="@{/}"
                        th:classappend="${activePage == 'index'} ? 'active' : ''">Home</a>
                 </li>
                 <li><a th:href="@{/about}"
@@ -142,7 +142,7 @@
         </nav>
 
         <a class="btn-getstarted login" th:href="@{/login}">Login</a>
-        <a class="btn-getstarted register" th:href="@{/register}">Register</a>
+        <a class="btn-getstarted register bg-warning" th:href="@{/registerInfo}">Register</a>
     </div>
 </header>
 
@@ -161,7 +161,7 @@
                 School, where learning meets excellence</p>
             <div class="d-flex mt-4" data-aos="fade-up"
                  data-aos-delay="300">
-                <a th:href="@{/register}" class="btn-get-started">Apply
+                <a th:href="@{/registerInfo}" class="btn-get-started">Apply
                     Now</a>
             </div>
         </div>
@@ -421,7 +421,7 @@
             <div class="col-lg-2 col-md-3">
                 <h6 class="fw-bold mb-3">Quick Links</h6>
                 <ul class="list-unstyled">
-                    <li><a href="home" class="text-muted text-decoration-none ">Home</a></li>
+                    <li><a href="/" class="text-muted text-decoration-none ">Home</a></li>
                     <li><a href="about" class="text-muted text-decoration-none">About Us</a></li>
                     <li><a href="courses" class="text-muted text-decoration-none">Courses</a></li>
                     <li><a href="contact" class="text-muted text-decoration-none">Contact</a></li>

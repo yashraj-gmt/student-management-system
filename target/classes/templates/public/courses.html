@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <html xmlns:th="http://www.thymeleaf.org">
 
@@ -112,7 +113,7 @@
 
         <nav id="navmenu" class="navmenu">
             <ul>
-                <li><a th:href="@{/index}"
+                <li><a th:href="@{/}"
                        th:classappend="${activePage == 'index'} ? 'active' : ''">Home</a>
                 </li>
                 <li><a th:href="@{/about}"
@@ -143,7 +144,7 @@
         </nav>
 
         <a class="btn-getstarted login" th:href="@{/login}">Login</a>
-        <a class="btn-getstarted register" th:href="@{/register}">Register</a>
+        <a class="btn-getstarted register bg-warning" th:href="@{/registerInfo}">Register</a>
     </div>
 </header>
 
@@ -254,7 +255,7 @@
             <div class="col-lg-2 col-md-3">
                 <h6 class="fw-bold mb-3">Quick Links</h6>
                 <ul class="list-unstyled">
-                    <li><a href="home" class="text-muted text-decoration-none ">Home</a></li>
+                    <li><a href="/" class="text-muted text-decoration-none ">Home</a></li>
                     <li><a href="about" class="text-muted text-decoration-none">About Us</a></li>
                     <li><a href="courses" class="text-muted text-decoration-none">Courses</a></li>
                     <li><a href="contact" class="text-muted text-decoration-none">Contact</a></li>

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,9 +22,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
+    private String firstName;
+    private String lastName;
     private String email;
+    private String mobileNumber;
     private String password;
+    private String confirmPassword;
+    private String registrationToken;
+    private LocalDateTime tokenExpiry;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Standard standard;
 
     private Boolean approved;
     private String temporaryPassword;
@@ -36,5 +46,6 @@ public class User {
     @Column(name = "role")
     private Set<String> roles = new HashSet<>();
 
-    // getters and setters...
+
+
 }

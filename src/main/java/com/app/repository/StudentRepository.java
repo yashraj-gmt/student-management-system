@@ -10,34 +10,25 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
-	@Query("SELECT COUNT(s) FROM Student s WHERE s.enrollmentNumber LIKE CONCAT('STD-', :year, '%')")
-	Long countByEnrollmentYear(@Param("year") int year);
+    @Query("SELECT COUNT(s) FROM Student s WHERE s.enrollmentNumber LIKE CONCAT('STD-', :year, '%')")
+    Long countByEnrollmentYear(@Param("year") int year);
 
-	@Query("SELECT s FROM Student s JOIN FETCH s.city JOIN FETCH s.state JOIN FETCH s.standard JOIN FETCH s.academicYear")
-	List<Student> findAllWithRelations();
+    @Query("SELECT s FROM Student s LEFT JOIN FETCH s.city c LEFT JOIN FETCH s.state st LEFT JOIN FETCH s.standard std")
+    List<Student> findAllWithRelations();
 
 
-	// Simple list search by keyword (firstName, lastName, email)
-	@Query("SELECT s FROM Student s WHERE " +
-			"LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
-	List<Student> searchStudentsByKeyword(@Param("keyword") String keyword);
+    Optional<Student> findByUserAccountEmail(String email);
 
-	// Paging search by firstName, lastName, or email (case-insensitive)
-	Page<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
-			String firstName, String lastName, Pageable pageable);
+    Optional<Student> findByOtp(String otp);
 
-	// Paging search by keyword using custom query (single param)
-	@Query("SELECT s FROM Student s WHERE " +
-			"LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-			"LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
-	Page<Student> searchByKeywordWithPaging(@Param("keyword") String keyword, Pageable pageable);
+    Optional<Student> findByEmail(String email);
 
-	Page<Student> findByFirstNameContainingIgnoreCase(String firstName, Pageable pageable);
+    Page<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrGenderContainingIgnoreCaseOrHobbiesContainingIgnoreCaseOrState_NameContainingIgnoreCaseOrCity_NameContainingIgnoreCaseOrStandard_NameContainingIgnoreCaseOrCreatedByContainingIgnoreCase(String firstName, String lastName, String gender, String hobbies, String state, String city, String standard, String createdBy, Pageable pageable);
 
 
 }

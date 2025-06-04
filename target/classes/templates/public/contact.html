@@ -112,7 +112,7 @@
 
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a th:href="@{/index}"
+        <li><a th:href="@{/}"
                th:classappend="${activePage == 'index'} ? 'active' : ''">Home</a>
         </li>
         <li><a th:href="@{/about}"
@@ -143,7 +143,7 @@
     </nav>
 
     <a class="btn-getstarted login" th:href="@{/login}">Login</a>
-    <a class="btn-getstarted register" th:href="@{/register}">Register</a>
+    <a class="btn-getstarted register bg-warning" th:href="@{/registerInfo}">Register</a>
   </div>
 </header>
 
@@ -204,24 +204,24 @@
         <div class="col-lg-7">
           <div class="card shadow-sm p-4 border-0" data-aos="fade-up" data-aos-delay="400">
             <h4 class="mb-3">Send Us a Message</h4>
-            <form action="forms/contact.php" method="post" class="php-email-form">
+            <form th:action="@{/contact/send}" method="post" th:object="${contactMessage}">
+
               <div class="row g-3">
                 <div class="col-md-6">
-                  <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+                  <input type="text" th:field="*{name}" class="form-control" placeholder="Your Name" required>
                 </div>
                 <div class="col-md-6">
-                  <input type="email" name="email" class="form-control" placeholder="Your Email" required>
+                  <input type="email" th:field="*{email}" class="form-control" placeholder="Your Email" required>
                 </div>
                 <div class="col-md-12">
-                  <input type="text" name="subject" class="form-control" placeholder="Subject" required>
+                  <input type="text" th:field="*{subject}" class="form-control" placeholder="Subject" required>
                 </div>
                 <div class="col-md-12">
-                  <textarea name="message" class="form-control" rows="5" placeholder="Message" required></textarea>
+                  <textarea th:field="*{message}" class="form-control" rows="5" placeholder="Message" required></textarea>
                 </div>
                 <div class="col-md-12 text-end">
-                  <div class="loading">Loading</div>
+
                   <div class="error-message"></div>
-                  <div class="sent-message">Your message has been sent. Thank you!</div>
                   <button type="submit" class="btn btn-primary px-4">Send Message</button>
                 </div>
               </div>
@@ -263,7 +263,7 @@
       <div class="col-lg-2 col-md-3">
         <h6 class="fw-bold mb-3">Quick Links</h6>
         <ul class="list-unstyled">
-          <li><a href="home" class="text-muted text-decoration-none ">Home</a></li>
+          <li><a href="/" class="text-muted text-decoration-none ">Home</a></li>
           <li><a href="about" class="text-muted text-decoration-none">About Us</a></li>
           <li><a href="courses" class="text-muted text-decoration-none">Courses</a></li>
           <li><a href="contact" class="text-muted text-decoration-none">Contact</a></li>
