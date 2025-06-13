@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Event Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(to right, #f9f7f7, #dbe2ef);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .container {
+            max-width: 900px;
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            margin-top: 60px;
+            margin-bottom: 60px;
+        }
+
+        .event-title {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 3rem;
+            color: #112D4E;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-category {
+            background-color: #3F72AF;
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 50px;
+        }
+
+        .event-meta p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-description {
+            margin-top: 1.5rem;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #222;
+            white-space: pre-wrap;
+        }
+
+        .image-gallery {
+            margin-top: 2.5rem;
+        }
+
+        .image-gallery h4 {
+            font-weight: 600;
+            color: #112D4E;
+            margin-bottom: 1rem;
+        }
+
+        .image-gallery img {
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease-in-out;
+            height: 220px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .image-gallery img:hover {
+            transform: scale(1.05);
+        }
+
+        .back-btn {
+            margin-top: 40px;
+        }
+
+        .back-btn a {
+            font-weight: 600;
+        }
+
+        @media (max-width: 576px) {
+            .event-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Event Title -->
+    <h1 class="event-title" th:text="${event.title}">Annual Sports Day</h1>
+
+    <!-- Event Meta Information -->
+    <div class="event-meta mb-4">
+        <p><strong>Date:</strong> <span th:text="${event.eventDate}">15 February 2025</span></p>
+        <p><strong></strong>
+            <span class="badge-category" th:text="${event.category != null ? event.category.name : 'General'}">Sports</span>
+        </p>
+    </div>
+
+    <!-- Event Description -->
+    <div>
+        <h4>Description</h4>
+        <p class="event-description" th:text="${event.description}">
+            Our Annual Sports Day was filled with excitement and enthusiasm. Students from all grades participated in various sports and relay events...
+        </p>
+    </div>
+
+    <!-- Image Gallery -->
+    <div class="image-gallery" th:if="${event.images != null and !event.images.isEmpty()}">
+        <h4>Event Highlights</h4>
+        <div class="row g-4">
+            <div class="col-12 col-sm-6 col-md-4" th:each="img : ${event.images}">
+                <img th:src="@{${img.imageUrl}}" alt="Event Image" class="img-fluid" />
+            </div>
+        </div>
+    </div>
+    <p class="text-muted mt-3" th:if="${event.images == null or event.images.isEmpty()}">No images available for this event.</p>
+
+    <!-- Back Button -->
+    <div class="back-btn">
+        <a th:href="@{/gallery}" class="btn btn-primary btn-lg">&larr; Back to Event Gallery</a>
+    </div>
+</div>
+
+</body>
+</html>

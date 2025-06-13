@@ -32,6 +32,7 @@ public class StudentRegistrationServiceImpl implements StudentRegistrationServic
         this.studentServiceImpl = studentServiceImpl;
     }
 
+
     @Override
     public void preRegisterStudent(Student student) {
 
@@ -117,6 +118,5 @@ public class StudentRegistrationServiceImpl implements StudentRegistrationServic
 
         return passwordEncoder.matches(generatedPassword, user.getTemporaryPassword());
     }
-
 
 }

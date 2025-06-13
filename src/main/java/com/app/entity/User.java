@@ -27,7 +27,7 @@ public class User {
     private String email;
     private String mobileNumber;
     private String password;
-    private String confirmPassword;
+    private String confirmPassword; // (Optional: Normally not stored)
     private String registrationToken;
     private LocalDateTime tokenExpiry;
 
@@ -46,6 +46,17 @@ public class User {
     @Column(name = "role")
     private Set<String> roles = new HashSet<>();
 
+    // Add failed attempts and lock time for login failure logic
+    private int failedAttempts = 0;
+    private LocalDateTime lockTime;
+    private boolean accountLocked;
 
-
+    // Account lock checking
+    public boolean isAccountLocked() {
+        if (lockTime == null) {
+            return false;
+        }
+        LocalDateTime unlockTime = lockTime.plusHours(24);
+        return LocalDateTime.now().isBefore(unlockTime);
+    }
 }

@@ -137,6 +137,9 @@
                         <li><a th:href="@{/courses}">Dropdown 4</a></li>
                     </ul>
                 </li>
+                <li><a th:href="@{/gallery}"
+                       th:classappend="${activePage == 'gallery'} ? 'active' : ''">Events</a>
+                </li>
                 <li><a th:href="@{/contact}"
                        th:classappend="${activePage == 'contact'} ? 'active' : ''">Contact</a></li>
             </ul>

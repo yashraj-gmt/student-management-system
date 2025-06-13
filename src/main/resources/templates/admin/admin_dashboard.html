@@ -79,7 +79,7 @@
       <img th:src="@{/image/gm_technosys.png}" alt="Admin Logo" />
     </a>
     <div class="ms-auto">
-      <form th:action="@{/logout}" method="post">
+      <form th:action="@{/admin/logout}" method="post">
         <button class="logout-button">Logout</button>
       </form>
     </div>
@@ -109,18 +109,7 @@
           <div class="card-body">
             <h5 class="card-title">Payment Histories</h5>
             <p class="card-text">View all student payment records.</p>
-            <a href="#" class="btn btn-success">Payment History</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Reports -->
-      <div class="col">
-        <div class="card shadow h-100">
-          <div class="card-body">
-            <h5 class="card-title">Reports</h5>
-            <p class="card-text">Generate and download various reports.</p>
-            <a href="#" class="btn btn-warning">View Reports</a>
+            <a href="/admin/payments/students" class="btn btn-success">Payment History</a>
           </div>
         </div>
       </div>
@@ -131,10 +120,12 @@
           <div class="card-body">
             <h5 class="card-title">Events</h5>
             <p class="card-text">Manage upcoming and past events.</p>
-            <a href="#" class="btn btn-info">Manage Events</a>
+            <a href="/admin/events/list" class="btn btn-info">Manage Events</a>
           </div>
         </div>
       </div>
+
+
 
     </div>
   </div>
@@ -172,58 +163,66 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script>
+  async function loadStudentStatistics() {
+    try {
+      const response = await fetch('/api/student-count-by-standard');
+      const data = await response.json();
 
-  const labels = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'];
-  const studentCounts = [50, 75, 60, 90, 40];
+      const labels = data.map(item => item.standardName);
+      const studentCounts = data.map(item => item.studentCount);
 
-  const ctx = document.getElementById('studentChart').getContext('2d');
-
-  const studentChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Number of Students',
-          data: studentCounts,
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 10
+      const ctx = document.getElementById('studentChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Number of Students',
+            data: studentCounts,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Students'
+              },
+              ticks: {
+                stepSize: 1
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Standards'
+              }
+            }
           },
-          title: {
-            display: true,
-            text: 'Students'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Classes'
+          plugins: {
+            title: {
+              display: true,
+              text: 'Student Count Per Standard'
+            },
+            legend: {
+              display: false
+            }
           }
         }
-      },
-      plugins: {
-        title: {
-          display: true,
-          text: 'Student Count Per Class'
-        },
-        legend: {
-          display: false
-        }
-      }
+      });
+    } catch (error) {
+      console.error('Error fetching student statistics:', error);
     }
-  });
+  }
+
+  window.onload = loadStudentStatistics;
 </script>
+
 
 </body>
 

@@ -113,7 +113,7 @@ public class StudentController {
             return "student/complete_profile";
         }
 
-        updatedStudent.setCreatedBy("user");
+
 
         // ✅ Update and save complete profile
         studentService.completeProfile(existingStudent, updatedStudent, hobbies, photoFile, aadhaarFile, panFile);

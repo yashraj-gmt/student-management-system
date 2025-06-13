@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import com.app.entity.StandardWiseStudentCount;
 import com.app.entity.Student;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.naming.factory.SendMailFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +44,13 @@ public interface StudentService {
 
     Page<Student> getAllStudentsPaginated(Pageable pageable);
 
-    public void deleteStudentsByIds(List<Long> ids);
+    void deleteStudentsByIds(List<Long> ids);
 
+    List<StandardWiseStudentCount> fetchStandardWiseStudentCount();
 
+    void exportStudentsToCSV(List<Student> students, HttpServletResponse response) throws IOException;
+
+    void exportStudentsToPDF(List<Student> students, HttpServletResponse response) throws IOException;
+
+    void exportStudentsToExcel(List<Student> students, HttpServletResponse response) throws IOException;
 }

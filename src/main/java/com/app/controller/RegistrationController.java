@@ -2,16 +2,25 @@ package com.app.controller;
 
 import com.app.entity.Student;
 import com.app.entity.User;
+import com.app.exception.AccountLockedException;
+import com.app.exception.InvalidEmailException;
+import com.app.exception.InvalidPasswordException;
 import com.app.service.AuthService;
 import com.app.service.StandardService;
 import com.app.service.StudentRegistrationService;
 import com.app.service.UserDetailsService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class RegistrationController {
@@ -95,37 +104,50 @@ public class RegistrationController {
         return "redirect:/user-login?verified=true";
     }
 
+
     @GetMapping("/user-login")
-    public String showLoginPage(@RequestParam(value = "email", required = false) String email, Model model) {
+    public String showLoginPage(@RequestParam(value = "email", required = false) String email, Model model, CsrfToken csrfToken) {
         model.addAttribute("email", email);
+        model.addAttribute("_csrf", csrfToken);
         return "login";
     }
 
-    @PostMapping("/user-login")
-    public String processLogin(@RequestParam String email,
-                               @RequestParam String password,
-                               Model model) {
-        try {
-            boolean authenticated = authService.authenticate(email, password);
-            if (authenticated) {
-                // Create an Authentication object and set it into SecurityContext
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                return "redirect:/students/home";
-            } else {
-                model.addAttribute("error", "Invalid email or password");
-                model.addAttribute("email", email);
-                return "login";
-            }
+
+    @PostMapping(value = "/ajax-user-login", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<?> processAjaxLogin(@RequestParam String email, @RequestParam String password) {
+        try {
+            authService.authenticateWithValidation(email, password);
+
+            // Authenticate into Spring Security context manually
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+            return ResponseEntity.ok(Map.of("message", "Login successful"));
+        } catch (InvalidEmailException e) {
+            return ResponseEntity.badRequest().body(Map.of("field", "email", "error", e.getMessage()));
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.badRequest().body(Map.of("field", "password", "error", e.getMessage()));
+        } catch (AccountLockedException e) {
+            return ResponseEntity.badRequest().body(Map.of("field", "email", "error", e.getMessage()));
         } catch (Exception e) {
-            model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
-            model.addAttribute("email", email);
-            return "login";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Unexpected server error"));
         }
     }
+
+
+
+    private ResponseEntity<Map<String, String>> buildErrorResponse(String errorMessage) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", errorMessage);
+        return ResponseEntity.badRequest().body(error);
+    }
+
+
 
 
 

@@ -228,9 +228,9 @@
     <!-- Export Options -->
     <div class="mb-4">
         <h5>Download files</h5>
-        <a href="/admin/students/export/csv" class="btn btn-warning btn-sm">Export CSV</a>
-        <a href="/admin/students/export/pdf" class="btn btn-danger btn-sm">Export PDF</a>
-        <a href="/admin/students/export/excel" class="btn btn-success btn-sm">Export Excel</a>
+        <a th:href="@{/admin/students/export/csv(keyword=${keyword}, page=${currentPage}, size=${pageSize})}" class="btn btn-warning btn-sm">Export CSV</a>
+        <a th:href="@{/admin/students/export/pdf(keyword=${keyword}, page=${currentPage}, size=${pageSize})}" class="btn btn-danger btn-sm">Export PDF</a>
+        <a th:href="@{/admin/students/export/excel(keyword=${keyword}, page=${currentPage}, size=${pageSize})}" class="btn btn-success btn-sm">Export Excel</a>
     </div>
 
     <a href="/admin/students" class="btn btn-secondary mt-5 rounded px-4 py-2">

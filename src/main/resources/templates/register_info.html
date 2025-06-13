@@ -105,6 +105,7 @@
             border-radius: 5px;
             font-size: 16px;
         }
+
         button {
             width: 100%;
             padding: 12px;
@@ -115,13 +116,14 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
         }
 
         .info-banner {
             background: url('/image/register-banner.png') center/cover no-repeat;
-            height: 300px;
+            height: 360px;
             position: relative;
             display: flex;
             align-items: center;
@@ -132,8 +134,10 @@
         .info-banner::before {
             content: "";
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
         }
 
@@ -148,7 +152,7 @@
             padding: 40px 20px;
             border-radius: 10px;
             margin-top: -80px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .step-box {
@@ -215,6 +219,9 @@
                         <li><a th:href="@{/courses}">Dropdown 4</a></li>
                     </ul>
                 </li>
+                <li><a th:href="@{/gallery}"
+                       th:classappend="${activePage == 'gallery'} ? 'active' : ''">Events</a>
+                </li>
                 <li><a th:href="@{/contact}"
                        th:classappend="${activePage == 'contact'} ? 'active' : ''">Contact</a></li>
             </ul>
@@ -237,23 +244,38 @@
 
         <div class="step-box">
             <h5 class="fw-semibold">Step 1: Contact the School Administration</h5>
-            <p>To begin the admission process, please contact the school administration. A staff member will verify your eligibility and begin pre-registration.</p>
+            <p>To begin the admission process, please contact the school administration. A staff member will verify your
+                eligibility and begin pre-registration.</p>
         </div>
 
         <div class="step-box">
             <h5 class="fw-semibold">Step 2: Admin Pre-Registration</h5>
-            <p>Once verified, the admin will create a pre-registration entry for you and send an email with a secure registration link.</p>
+            <p>Once verified, the admin will create a pre-registration entry for you and send an email with a secure
+                registration link.</p>
         </div>
 
         <div class="step-box">
             <h5 class="fw-semibold">Step 3: Complete Your Registration</h5>
-            <p>Using the link in your email, complete the registration form online by setting your password and filling in your details.</p>
+            <p>Using the link in your email, complete the registration form online by setting your password and filling
+                in your details.</p>
         </div>
 
         <div class="step-box">
             <h5 class="fw-semibold">Step 4: Final Confirmation</h5>
-            <p>After submission, your registration will be reviewed and confirmed by our staff. You will then be able to log in and access your student portal.</p>
+            <p>After submission, your registration will be reviewed and confirmed by our staff. You will then be able to
+                log in and access your student portal.</p>
         </div>
+
+        <div class="alert alert-info mt-4" role="alert">
+            <strong>Having trouble registering?</strong><br>
+            You can also visit the school to complete the registration process in person.
+            <ul class="mt-2 mb-0">
+                <li>📞 <strong>Phone:</strong> +91 9876543210</li>
+                <li>📧 <strong>Email:</strong> admissions@ilearn.com</li>
+                <li>🏫 <strong>Address:</strong> iLearn High School, Science City, Ahmedabad</li>
+            </ul>
+        </div>
+
 
         <!-- Contact Info -->
         <div class="contact-box">
@@ -291,7 +313,7 @@
                 <h6 class="fw-bold mb-3">Quick Links</h6>
                 <ul class="list-unstyled">
                     <li><a href="/" class="text-muted text-decoration-none ">Home</a></li>
-                   <li><a href="about" class="text-muted text-decoration-none">About Us</a></li>
+                    <li><a href="about" class="text-muted text-decoration-none">About Us</a></li>
                     <li><a href="courses" class="text-muted text-decoration-none">Courses</a></li>
                     <li><a href="contact" class="text-muted text-decoration-none">Contact</a></li>
                 </ul>

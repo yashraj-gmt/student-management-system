@@ -47,6 +47,19 @@ public class EmailService {
                 + "This link is valid for a limited time. Please do not share your password or link with anyone.\n\n"
                 + "Best regards,\n"
                 + "Student Management System Team";
+        sendEmail(to, subject, body);
+    }
+
+    public void sendWelcomeEmailWithPassword(String to, String studentName, String plainPassword) {
+        String subject = "Welcome to Student Portal - Login Details";
+        String body = "Dear " + studentName + ",\n\n"
+                + "Your student account has been created successfully.\n"
+                + "You can log in to the portal using the following credentials:\n\n"
+                + "Email: " + to + "\n"
+                + "Password: " + plainPassword + "\n\n"
+                + "We recommend changing your password after first login.\n\n"
+                + "Best regards,\n"
+                + "Student Management System Team";
 
         sendEmail(to, subject, body);
     }

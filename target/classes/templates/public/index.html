@@ -135,6 +135,9 @@
                         <li><a th:href="@{/courses}">Dropdown 4</a></li>
                     </ul>
                 </li>
+                <li><a th:href="@{/gallery}"
+                       th:classappend="${activePage == 'gallery'} ? 'active' : ''">Events</a>
+                </li>
                 <li><a th:href="@{/contact}"
                        th:classappend="${activePage == 'contact'} ? 'active' : ''">Contact</a></li>
             </ul>
@@ -282,7 +285,7 @@
                         <div class="card-body">
                             <span class="badge bg-primary mb-2">Language Arts</span>
                             <h5 class="card-title fw-semibold">
-                                <a href="course-details.html" class="stretched-link text-decoration-none text-dark">
+                                <a href="/courses" class="stretched-link text-decoration-none text-dark">
                                     English Literature & Grammar
                                 </a>
                             </h5>
@@ -301,7 +304,7 @@
                         <div class="card-body">
                             <span class="badge bg-success mb-2">Maths</span>
                             <h5 class="card-title fw-semibold">
-                                <a href="course-details.html" class="stretched-link text-decoration-none text-dark">
+                                <a href="/courses" class="stretched-link text-decoration-none text-dark">
                                     Mathematics & Problem Solving
                                 </a>
                             </h5>
@@ -320,7 +323,7 @@
                         <div class="card-body">
                             <span class="badge bg-warning text-dark mb-2">Science</span>
                             <h5 class="card-title fw-semibold">
-                                <a href="course-details.html" class="stretched-link text-decoration-none text-dark">
+                                <a href="/courses" class="stretched-link text-decoration-none text-dark">
                                     General Science & Experiments
                                 </a>
                             </h5>

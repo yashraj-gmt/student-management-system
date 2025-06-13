@@ -1,25 +1,35 @@
 package com.app.controller;
 
-import com.app.entity.User;
+import com.app.entity.Event;
+import com.app.service.EmailService;
+import com.app.service.EventService;
+import com.app.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class UserController {
 
-//    private final UserService userService;
-//    private final EmailService emailService;
-//
-//    public UserController(UserService userService, EmailService emailService) {
-//        this.userService = userService;
-//        this.emailService = emailService;
-//    }
+    private final UserService userService;
+    private final EmailService emailService;
+    private final EventService eventService;
+
+    public UserController(UserService userService, EmailService emailService, EventService eventService) {
+        this.userService = userService;
+        this.emailService = emailService;
+        this.eventService = eventService;
+    }
 
 //    @GetMapping("/home")
 //    public String homePage() {
 //        return "home";
 //    }
+
 
     @GetMapping("/about")
     public String aboutPage(Model model) {
@@ -57,6 +67,30 @@ public class UserController {
         return "public/index";
     }
 
+
+    @GetMapping("/gallery")
+    public String eventGallery(@RequestParam(name = "categoryId", required = false) Long categoryId, Model model) {
+        List<Event> events = (categoryId != null)
+                ? eventService.getEventsByCategory(categoryId)
+                : eventService.getAllEvents();
+        model.addAttribute("categories", eventService.getAllCategories());
+        model.addAttribute("events", events);
+        model.addAttribute("selectedCategoryId", categoryId);
+        model.addAttribute("activePage", "gallery");
+        return "public/event_gallery";
+    }
+
+    @GetMapping("/event-details/{id}")
+    public String viewParticularEvent(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Event> eventOpt = eventService.getEventById(id);
+        if (eventOpt.isPresent()) {
+            model.addAttribute("event", eventOpt.get());
+            return "public/event_detail_view";
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Event not found.");
+            return "redirect:/gallery";
+        }
+    }
 
 //    @GetMapping("/register")
 //    public String showRegisterForm(Model model) {
@@ -208,6 +242,7 @@ public class UserController {
         userService.updatePassword(user, newPassword); // Update the password
         return "redirect:/login?resetSuccess"; // Redirect to login page with success message
     }*/
+
 
 
 }

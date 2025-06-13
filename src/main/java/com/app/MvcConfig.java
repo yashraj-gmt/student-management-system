@@ -18,6 +18,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
 		registry.addResourceHandler("/student-photos/**").addResourceLocations(studentPhotoDir);
 		registry.addResourceHandler("/student-documents/**").addResourceLocations(documentDir);
-		registry.addResourceHandler("/event-images/**").addResourceLocations(eventImageDir);
+		registry.addResourceHandler("/event-images/**")
+				.addResourceLocations(Paths.get("event-images").toAbsolutePath().toUri().toString());
 	}
 }

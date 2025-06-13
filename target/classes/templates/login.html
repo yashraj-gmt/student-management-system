@@ -9,6 +9,10 @@
     <meta name="description"
           content="iLearn High School - Nurturing Excellence in Education">
     <meta name="keywords" content="school, education, high school, ilearn">
+    <!-- CSRF Tokens -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
 
     <!-- Favicons (optional) -->
     <link th:href="@{/image/favicon.png}" rel="icon">
@@ -158,6 +162,9 @@
                         <li><a th:href="@{/courses}">Dropdown 4</a></li>
                     </ul>
                 </li>
+                <li><a th:href="@{/gallery}"
+                       th:classappend="${activePage == 'gallery'} ? 'active' : ''">Events</a>
+                </li>
                 <li><a th:href="@{/contact}"
                        th:classappend="${activePage == 'contact'} ? 'active' : ''">Contact</a></li>
             </ul>
@@ -169,41 +176,33 @@
     </div>
 </header>
 
-<!--main-->
 <div class="container-fluid" style="min-height: 90vh; background: #f0f4f8;">
     <div class="row d-flex justify-content-center align-items-center" style="min-height: 90vh;">
         <div class="col-lg-8 col-md-10 shadow-lg bg-white rounded-4 overflow-hidden d-flex p-0">
+            <div class="col-md-6 d-none d-md-block" style="background: url('/image/student-login.png') center/cover no-repeat;"></div>
 
-            <!-- Left Image Section -->
-            <div class="col-md-6 d-none d-md-block" style="background: url('/image/student-login.png') center/cover no-repeat;">
-            </div>
-
-            <!-- Right Login Form -->
             <div class="col-md-6 p-5">
                 <h3 class="mb-4 text-center fw-bold">Student Login</h3>
-                <form th:action="@{/user-login}" method="post">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" id="email" placeholder="Enter your email"
-                               th:value="${email != null} ? ${email} : ''" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" id="password" placeholder="Enter your password" required>
-                    </div>
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                    <div class="text-center">
-                        <a href="/forgot-password" class="text-decoration-none">Forgot Password?</a>
-                    </div>
-                    <div class="text-center">
-                        <a href="/registerInfo" class="text-decoration-none">SignUp</a>
-                    </div>
-                </form>
 
-                <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
-                <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
+                <form id="loginForm">
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" id="email" class="form-control" name="email" th:value="${email}" required>
+                        <div class="invalid-feedback" id="emailError"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password:</label>
+                        <input type="password" id="password" class="form-control" name="password" required>
+                        <div class="invalid-feedback" id="passwordError"></div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Login</button>
+                    </div>
+
+                </form>
             </div>
         </div>
     </div>
@@ -275,6 +274,60 @@
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 
 <script>AOS.init();</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $("#loginForm").submit(function (e) {
+            e.preventDefault();
+
+            $("#emailError, #passwordError").text('');
+
+            let email = $("#email").val().trim();
+            let password = $("#password").val().trim();
+
+            $.ajax({
+                type: "POST",
+                url: "/ajax-user-login",
+                data: { email: email, password: password },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function () {
+                    window.location.href = "/students/home";
+                },
+                error: function (xhr) {
+                    let jsonResponse = xhr.responseJSON;
+                    if (jsonResponse) {
+                        if (jsonResponse.field === "email") {
+                            $("#emailError").text(jsonResponse.error).show();
+                            $("#email").addClass("is-invalid");
+                        } else if (jsonResponse.field === "password") {
+                            $("#passwordError").text(jsonResponse.error).show();
+                            $("#password").addClass("is-invalid");
+                        } else if (jsonResponse.field === "accountLocked") {
+                            $("#passwordError").text(jsonResponse.error).show();
+                            $("#password").addClass("is-invalid");
+                        } else {
+                            alert(jsonResponse.error || "Unexpected error");
+                        }
+                    } else {
+                        alert("Login failed");
+                    }
+                }
+
+            });
+        });
+
+    });
+</script>
+
 
 <!-- Main JS File -->
 <script th:src="@{static/main.js}"></script>

@@ -74,18 +74,18 @@
         <div class="col-md-6">
             <p><span class="info-label">Father's Name:</span> <span class="info-value" th:text="${student.fatherName}"></span></p>
             <p><span class="info-label">Gender:</span> <span class="info-value" th:text="${student.gender}"></span></p>
-<!--            <p><span class="info-label">Hobbies:</span>-->
-<!--                <span class="info-value" th:text="${#strings.listJoin(student.hobbies, ', ')}"></span>-->
-<!--            </p>-->
+            <p><span class="info-label">Hobbies:</span>
+                <span class="info-value" th:text="${#strings.listJoin(student.hobbies, ', ')}"></span>
+            </p>
             <p><span class="info-label">State:</span> <span class="info-value" th:text="${student.state.name}"></span></p>
             <p><span class="info-label">City:</span> <span class="info-value" th:text="${student.city.name}"></span></p>
         </div>
     </div>
 
 <!--    <hr>-->
-<!--    <p><span class="info-label">Standard:</span> <span class="info-value" th:text="${student.standard.name}"></span></p>-->
-<!--    <p><span class="info-label">Academic Year:</span> <span class="info-value" th:text="${student.academicYear.yearLabel}"></span></p>-->
-<!--    <p><span class="info-label">About:</span> <span class="info-value" th:text="${student.description}"></span></p>-->
+    <p><span class="info-label">Standard:</span> <span class="info-value" th:text="${student.standard.name}"></span></p>
+<!--    <p><span class="info-label">Academic Year:</span> <span class="info-value" th:text="${student.academicYear.year_label}"></span></p>-->
+    <p><span class="info-label">About:</span> <span class="info-value" th:text="${student.description}"></span></p>
 </div>
 
 </body>

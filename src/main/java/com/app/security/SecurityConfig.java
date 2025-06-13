@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .securityMatcher("/admin/**")
                 .authenticationProvider(authProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/login", "/admin/css/**", "/admin/js/**").permitAll()
+                        .requestMatchers("/admin/login","/admin/css/**","/admin/js/**").permitAll()
                         .anyRequest().hasRole("ADMIN")
                 )
                 .formLogin(form -> form
@@ -56,10 +56,10 @@ public class SecurityConfig {
                 .authenticationProvider(authProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/","/register", "/user-login", "/forgot-password", "/verify-otp", "/admin/students/check-email",
+                                "/","/register", "/user-login", "/event-images/**", "/event-details/{id}", "/forgot-password", "/verify-otp", "/admin/students/check-email",
                                 "/static/**", "/css/**", "/js/**", "/image/**","/students/profile", "/registerInfo",
-                                "/webjars/**", "/main", "/about", "/courses", "/contact", "/students/stu/city",
-                                "/complete-registration", "/registration/**", "/student/**", "/students/home", "/students/complete-profile"
+                                "/webjars/**", "/main", "/about", "/courses", "/contact", "/gallery","/students/stu/city",
+                                "/complete-registration", "/registration/**", "/student/**", "/students/home", "/students/complete-profile", "/ajax-user-login"
                         ).permitAll()
                         .requestMatchers("/students/**").hasRole("USER")
                         .anyRequest().authenticated()

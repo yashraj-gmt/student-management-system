@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadService {
 
 	public static String saveFile(String uploadDir, String originalFileName, MultipartFile multipartFile) throws IOException {
+
 		Path uploadPath = Paths.get(uploadDir);
 
 		if (!Files.exists(uploadPath)) {
@@ -43,3 +44,4 @@ public class FileUploadService {
 		}
 	}
 }
+

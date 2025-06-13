@@ -1,5 +1,6 @@
 package com.app.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -111,5 +112,8 @@ public class Student {
     private List<StudentSubject> studentSubjects;
 
     private String createdBy;  // admin or user
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
 }

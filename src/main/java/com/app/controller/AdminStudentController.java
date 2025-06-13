@@ -26,11 +26,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPCell;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.util.StringUtils;
+import java.util.List;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.stream.Stream;
 
 @Controller
@@ -122,19 +122,17 @@ public class AdminStudentController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("totalItems", studentPage.getTotalElements());
-
+        
         return "admin/view_students";
     }
-
 
 //    @GetMapping("/viewStudents")
 //    public String manageStudents(Model model) {
 //        List<Student> students = studentService.getAllStudentsWithRelations();
 //        model.addAttribute("students", students);
 //        return "admin/view_students";
-//    }
-
-
+//  }
+//
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
@@ -171,136 +169,91 @@ public class AdminStudentController {
         return "redirect:/admin/students/viewStudents";
     }
 
+
     @GetMapping("/export/csv")
-    public void exportToCSV(HttpServletResponse response) throws IOException {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=students.csv");
+    public void exportToCSV(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            HttpServletResponse response) throws IOException {
 
-        List<Student> students = studentService.getAllStudents(); // Modify if you want to filter
+        Pageable pageable = Pageable.unpaged(); // export all matching students
+        Page<Student> studentPage = studentService.searchStudents(keyword, pageable);
+        List<Student> students = studentPage.getContent();
 
-        PrintWriter writer = response.getWriter();
-        // Header
-        writer.println("Enrollment Number,First Name,Father's Name,Last Name,Email,Gender,Mobile,State,City,Standard");
-
-        for (Student student : students) {
-            writer.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
-                    student.getEnrollmentNumber(),
-                    student.getFirstName(),
-                    student.getFatherName(),
-                    student.getLastName(),
-                    student.getEmail(),
-                    student.getGender(),
-                    student.getMobileNumber(),
-                    student.getState() != null ? student.getState().getName() : "",
-                    student.getCity() != null ? student.getCity().getName() : "",
-                    student.getStandard() != null ? student.getStandard().getName() : ""
-            );
-        }
-
-        writer.flush();
-        writer.close();
+        studentService.exportStudentsToCSV(students, response);
     }
 
     @GetMapping("/export/pdf")
-    public void exportToPDF(HttpServletResponse response) throws IOException {
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=students.pdf");
+    public void exportToPDF(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            HttpServletResponse response) throws IOException {
 
-        List<Student> students = studentService.getAllStudents(); // Adjust if needed
+        Pageable pageable = Pageable.unpaged(); // export all matching students
+        Page<Student> studentPage = studentService.searchStudents(keyword, pageable);
+        List<Student> students = studentPage.getContent();
 
-        try {
-            Document document = new Document(PageSize.A4.rotate());
-            PdfWriter.getInstance(document, response.getOutputStream());
-
-            document.open();
-
-            Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
-            Paragraph title = new Paragraph("Registered Students", fontTitle);
-            title.setAlignment(Element.ALIGN_CENTER);
-            title.setSpacingAfter(20);
-            document.add(title);
-
-            PdfPTable table = new PdfPTable(10);
-            table.setWidthPercentage(100);
-            table.setWidths(new int[]{3, 4, 4, 4, 5, 3, 4, 3, 3, 3});
-
-            // Table Headers
-            Stream.of("Enrollment No", "First Name", "Father's Name", "Last Name", "Email",
-                            "Gender", "Mobile", "State", "City", "Standard")
-                    .forEach(header -> {
-                        PdfPCell cell = new PdfPCell();
-                        cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                        cell.setPhrase(new Phrase(header));
-                        table.addCell(cell);
-                    });
-
-            for (Student student : students) {
-                table.addCell(student.getEnrollmentNumber());
-                table.addCell(student.getFirstName());
-                table.addCell(student.getFatherName());
-                table.addCell(student.getLastName());
-                table.addCell(student.getEmail());
-                table.addCell(student.getGender());
-                table.addCell(student.getMobileNumber());
-                table.addCell(student.getState() != null ? student.getState().getName() : "");
-                table.addCell(student.getCity() != null ? student.getCity().getName() : "");
-                table.addCell(student.getStandard() != null ? student.getStandard().getName() : "");
-            }
-
-            document.add(table);
-            document.close();
-
-        } catch (DocumentException e) {
-            throw new IOException("Error generating PDF: " + e.getMessage());
-        }
+        studentService.exportStudentsToPDF(students, response);
     }
 
     @GetMapping("/export/excel")
-    public void exportToExcel(HttpServletResponse response) throws IOException {
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=students.xlsx");
+    public void exportToExcel(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            HttpServletResponse response) throws IOException {
 
-        List<Student> students = studentService.getAllStudents();
+        Pageable pageable = Pageable.unpaged(); // export all matching students
+        Page<Student> studentPage = studentService.searchStudents(keyword, pageable);
+        List<Student> students = studentPage.getContent();
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            XSSFSheet sheet = workbook.createSheet("Students");
-
-            // Header
-            Row header = sheet.createRow(0);
-            String[] columns = {"Enrollment No", "First Name", "Father's Name", "Last Name", "Email", "Gender",
-                    "Mobile", "State", "City", "Standard"};
-
-            for (int i = 0; i < columns.length; i++) {
-                Cell cell = header.createCell(i);
-                cell.setCellValue(columns[i]);
-            }
-
-            // Data rows
-            int rowNum = 1;
-            for (Student student : students) {
-                Row row = sheet.createRow(rowNum++);
-
-                row.createCell(0).setCellValue(student.getEnrollmentNumber());
-                row.createCell(1).setCellValue(student.getFirstName());
-                row.createCell(2).setCellValue(student.getFatherName());
-                row.createCell(3).setCellValue(student.getLastName());
-                row.createCell(4).setCellValue(student.getEmail());
-                row.createCell(5).setCellValue(student.getGender());
-                row.createCell(6).setCellValue(student.getMobileNumber());
-                row.createCell(7).setCellValue(student.getState() != null ? student.getState().getName() : "");
-                row.createCell(8).setCellValue(student.getCity() != null ? student.getCity().getName() : "");
-                row.createCell(9).setCellValue(student.getStandard() != null ? student.getStandard().getName() : "");
-            }
-
-            // Auto-size columns
-            for (int i = 0; i < columns.length; i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            workbook.write(response.getOutputStream());
-        }
+        studentService.exportStudentsToExcel(students, response);
     }
 
+
+    ///if want to download only particular page data
+   /* @GetMapping("/export/csv")
+    public void exportToCSV(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            HttpServletResponse response) throws IOException {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // Fetch filtered data for export
+        Page<Student> studentPage = studentService.searchStudents(keyword, pageable);
+        List<Student> students = studentPage.getContent();
+
+        // Call existing export logic, but now with filtered list
+        studentService.exportStudentsToCSV(students, response);
+    }
+
+    @GetMapping("/export/pdf")
+    public void exportToPDF(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            HttpServletResponse response) throws IOException {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Student> studentPage = studentService.searchStudents(keyword, pageable);
+        List<Student> students = studentPage.getContent();
+
+        studentService.exportStudentsToPDF(students, response);
+    }
+
+    @GetMapping("/export/excel")
+    public void exportToExcel(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            HttpServletResponse response) throws IOException {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Student> studentPage = studentService.searchStudents(keyword, pageable);
+        List<Student> students = studentPage.getContent();
+
+        studentService.exportStudentsToExcel(students, response);
+    }
+
+*/
 
     @PostMapping("/delete-multiple")
     public String deleteMultipleStudents(@RequestParam("studentIds") List<Long> studentIds) {
